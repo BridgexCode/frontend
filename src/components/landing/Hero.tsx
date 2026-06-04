@@ -18,8 +18,8 @@ export const Hero: React.FC = () => {
   ];
 
   return (
-    <section className="relative min-h-[795px] w-full overflow-hidden pt-28 pb-16">
-      <div className="w-full max-w-7xl mx-auto px-6 md:px-10 grid lg:grid-cols-2 gap-12 items-center min-h-[600px]">
+    <section className="relative min-h-[795px] w-full overflow-hidden pt-28 pb-6 md:pb-16">
+      <div className="w-full max-w-7xl mx-auto px-0 md:px-1 grid lg:grid-cols-2 gap-12 items-center min-h-[600px]">
         {/* Left Column Content */}
         <motion.div 
           initial="hidden"
@@ -33,7 +33,7 @@ export const Hero: React.FC = () => {
           </Badge>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-on-surface tracking-tight mb-6 leading-[1.1]">
-            Logistics ERP Powered by <br />
+            Logistics ERP Powered by <span className="hidden md:inline"><br /></span>
             <span className="text-secondary">WhatsApp &amp; AI</span>
           </h1>
           
@@ -54,7 +54,7 @@ export const Hero: React.FC = () => {
           </div>
 
           {/* Social Proof */}
-          <div className="mt-12 flex items-center gap-4 border-t border-outline-variant/30 pt-8">
+          <div className="mt-6 md:mt-12 flex items-center gap-2 md:gap-4 border-t border-outline-variant/30 pt-4 md:pt-8">
             <div className="flex -space-x-3">
               {avatars.map((url, i) => (
                 <div 
