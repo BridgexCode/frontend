@@ -1,41 +1,42 @@
 "use client";
 
 import React from "react";
-import { Network } from "lucide-react";
-import { FOOTER_SECTIONS, SOCIAL_LINKS } from "@/lib/constants";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { FOOTER_SECTIONS } from "@/lib/constants";
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-white/80 py-20 px-6 md:px-10 border-t border-outline-variant/30 relative">
+    <footer id="contact" className="bg-white/80 py-20 px-6 md:px-10 border-t border-outline-variant/30 relative">
       <div className="w-full max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12">
-        {/* Brand Summary */}
+        {/* Contact Us */}
         <div className="col-span-2">
-          <div className="flex items-center gap-2 mb-6">
-            <Network className="text-secondary w-8 h-8" />
-            <span className="font-headline-lg text-lg md:text-xl font-bold text-on-surface tracking-tight">
-              NX Group
-            </span>
-          </div>
-          <p className="text-on-surface-variant text-sm max-w-xs mb-8 leading-relaxed">
-            The enterprise standard for WhatsApp-based logistics automation. Bridge the gap between your fleet and your ERP.
-          </p>
-          
-          {/* Socials */}
-          <div className="flex gap-4">
-            {SOCIAL_LINKS.map((social, index) => {
-              const Icon = social.icon;
-              return (
-                <a
-                  key={index}
-                  href={social.href}
-                  aria-label={social.label}
-                  className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:bg-secondary hover:text-white transition-all duration-200"
-                >
-                  <Icon className="w-4 h-4" />
+          <h6 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-6">
+            Contact Us
+          </h6>
+          <ul className="space-y-5 text-sm text-on-surface-variant">
+            <li className="flex items-start gap-3">
+              <Mail className="w-4 h-4 mt-0.5 text-secondary shrink-0" />
+              <div>
+                <a href="mailto:hello@nexivo.com" className="hover:text-secondary transition-colors duration-200 block">
+                  hello@nexivo.com
                 </a>
-              );
-            })}
-          </div>
+                <a href="mailto:support@nexivo.com" className="hover:text-secondary transition-colors duration-200 block">
+                  support@nexivo.com
+                </a>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <Phone className="w-4 h-4 mt-0.5 text-secondary shrink-0" />
+              <div>
+                <span className="block text-xs font-medium text-on-surface uppercase tracking-wider mb-0.5">WhatsApp Business</span>
+                <span>+91 XXXXX XXXXX</span>
+              </div>
+            </li>
+            <li className="flex items-start gap-3">
+              <MapPin className="w-4 h-4 mt-0.5 text-secondary shrink-0" />
+              <span>Kerala, India</span>
+            </li>
+          </ul>
         </div>
 
         {/* Footer Sub-Links Arrays */}
@@ -60,7 +61,7 @@ export const Footer: React.FC = () => {
       {/* Sub-footer Copyright & Status */}
       <div className="w-full max-w-7xl mx-auto mt-20 pt-8 border-t border-outline-variant/20 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-xs text-on-surface-variant font-medium">
-          © 2024 NX Group LogisticsPro. All rights reserved.
+          © 2026 Nexivo. All rights reserved.
         </p>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-secondary-fixed-dim animate-pulse" />

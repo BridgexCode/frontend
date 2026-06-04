@@ -43,7 +43,6 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Features", href: "#features", icon: MessageSquare },
   { label: "How It Works", href: "#workflow", icon: History },
   { label: "Solutions", href: "#solutions", icon: PackageCheck },
-  { label: "Pricing", href: "#pricing", icon: TrendingUp },
   { label: "Contact", href: "#contact", icon: Mail },
 ];
 

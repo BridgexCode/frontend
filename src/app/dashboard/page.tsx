@@ -15,6 +15,7 @@ import {
   ShieldCheck, 
   Eye, 
   EyeOff, 
+  Network,
   Truck,
   ArrowRight,
   CheckCircle2,
@@ -63,7 +64,7 @@ const INITIAL_SHIPMENTS = [
 
 const INITIAL_ACTIVITIES = [
   { id: 1, type: "delivered", title: "Shipment #1001 delivered", desc: "Kochi → Calicut", time: "10:30 AM", icon: Check, color: "bg-green-500 text-white" },
-  { id: 2, type: "transit", title: "Shipment #1003 in transit", desc: "Kochi → Malappuram", time: "09:15 AM", icon: Truck, color: "bg-indigo-500 text-white" },
+  { id: 2, type: "transit", title: "Shipment #1003 in transit", desc: "Kochi → Malappuram", time: "09:15 AM", icon: Truck, color: "bg-emerald-500 text-white" },
   { id: 3, type: "assigned", title: "Driver Rahul P assigned to Shipment #1002", desc: "Kochi → Thrissur", time: "Yesterday", icon: User, color: "bg-amber-500 text-white" },
   { id: 4, type: "vehicle", title: "Vehicle KL-07-AB-1234 added", desc: "Org Admin registration", time: "Yesterday", icon: Navigation, color: "bg-purple-500 text-white" },
   { id: 5, type: "delayed", title: "Shipment #1004 delayed", desc: "Reason: Traffic", time: "14 Oct, 08:45 PM", icon: AlertTriangle, color: "bg-red-500 text-white" },
@@ -137,7 +138,7 @@ export default function DashboardPage() {
       desc: `${newOrigin} → ${newDestination}`,
       time: timeString,
       icon: newStatus === "DELIVERED" ? Check : newStatus === "DELAYED" ? AlertTriangle : Truck,
-      color: newStatus === "DELIVERED" ? "bg-green-500 text-white" : newStatus === "DELAYED" ? "bg-red-500 text-white" : "bg-indigo-500 text-white"
+      color: newStatus === "DELIVERED" ? "bg-green-500 text-white" : newStatus === "DELAYED" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
     };
 
     setActivities([newActivity, ...activities]);
@@ -172,11 +173,11 @@ export default function DashboardPage() {
         <div>
           {/* Logo Branding */}
           <div className="flex items-center gap-2.5 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/20">
-              <Truck className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/20">
+               <Network className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-base font-bold text-slate-800 tracking-tight block leading-none">LogiTrack</span>
+              <span className="text-base font-bold text-slate-800 tracking-tight block leading-none">Naxivo</span>
               <span className="text-[9px] font-semibold text-slate-400 tracking-wide">Logistics & Shipment Management</span>
             </div>
           </div>
@@ -189,7 +190,7 @@ export default function DashboardPage() {
                 href={item.href}
                 className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                   item.active 
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/15" 
+                    ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/15" 
                     : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
@@ -206,7 +207,7 @@ export default function DashboardPage() {
           {/* Active Org Selector */}
           <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-100/70 transition-colors">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
                 <Building2 className="w-4 h-4" />
               </div>
               <div className="text-left">
@@ -252,8 +253,8 @@ export default function DashboardPage() {
                 {/* Logo */}
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-2">
-                    <Truck className="w-6 h-6 text-indigo-600" />
-                    <span className="text-base font-bold text-slate-800">LogiTrack</span>
+                    <Network className="w-6 h-6 text-emerald-600" />
+                    <span className="text-base font-bold text-slate-800">Naxivo</span>
                   </div>
                   <button 
                     onClick={() => setSidebarOpen(false)}
@@ -272,7 +273,7 @@ export default function DashboardPage() {
                       onClick={() => setSidebarOpen(false)}
                       className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                         item.active 
-                          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/15" 
+                          ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/15" 
                           : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                       }`}
                     >
@@ -286,7 +287,7 @@ export default function DashboardPage() {
               {/* Bottom workspace / helper */}
               <div className="space-y-4 pt-6 border-t border-slate-100">
                 <div className="flex items-center gap-2.5 p-3 bg-slate-50 rounded-xl">
-                  <Building2 className="w-5 h-5 text-indigo-600" />
+                  <Building2 className="w-5 h-5 text-emerald-600" />
                   <div>
                     <p className="text-xs font-bold text-slate-800">SpeedX Logistics</p>
                     <p className="text-[10px] text-slate-400">Org Admin</p>
@@ -315,7 +316,7 @@ export default function DashboardPage() {
             {/* Welcome title */}
             <div>
               <h1 className="text-lg md:text-xl font-extrabold text-slate-900 flex items-center gap-1.5">
-                Welcome back, Arjun! 👋
+                Welcome back, Alex! 👋
               </h1>
               <p className="text-xs text-slate-400 font-medium">Here&apos;s what&apos;s happening with your logistics operations.</p>
             </div>
@@ -346,17 +347,17 @@ export default function DashboardPage() {
 
             {/* Profile Avatar Badge */}
             <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200 cursor-pointer">
-              <div className="relative w-9 h-9 rounded-full overflow-hidden bg-indigo-50 border border-slate-200">
+              <div className="relative w-9 h-9 rounded-full overflow-hidden bg-emerald-50 border border-slate-200">
                 <Image
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1ZDIks2gqEkuL7T4-5foncVRG0lqVj4_A5gN8tJcRW0-UQtb-eQCMApMvk20vhZAckRDC8Cw6ts7Xy6sOdwvQLIM-ijN9-iyLLOMRsxeVwZdTWhIbFSLEgyyOEqv5-POsVgbTtmitmNka7dKHTEfxKFxuvzryCZQjbspglzhl9IeY89KstquHXsYdAzXTrWR1Xz5yyphFvSu71nR8MLDXaMCfsjW-MskUC5yGT3gOa6IyQxeT13WSlERlT2a8RJpZLT_y8qS7jFve"
-                  alt="Arjun Mathew Profile"
+                  alt="Alex Johnson Profile"
                   fill
                   sizes="36px"
                   className="object-cover"
                 />
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-xs font-bold text-slate-800 leading-none">Arjun Mathew</p>
+                <p className="text-xs font-bold text-slate-800 leading-none">Alex Johnson</p>
                 <p className="text-[9px] font-semibold text-slate-400 mt-0.5">Org Admin</p>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
@@ -374,7 +375,7 @@ export default function DashboardPage() {
             {/* Total Shipments */}
             <div className="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">
-                <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
                   <Building2 className="w-4.5 h-4.5" />
                 </div>
                 <div className="flex items-center gap-0.5 text-green-500 text-[10px] font-bold">
@@ -494,7 +495,7 @@ export default function DashboardPage() {
                   <span>Delivered</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                   <span>In Transit</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -561,7 +562,7 @@ export default function DashboardPage() {
                         C 125 ${180 - activeChart.inTransit[1] * 0.8} 210 ${180 - activeChart.inTransit[2] * 0.8} 295 ${180 - activeChart.inTransit[3] * 0.8} 
                         S 465 ${180 - activeChart.inTransit[5] * 0.8} 550 ${180 - activeChart.inTransit[6] * 0.8}`}
                     fill="none"
-                    stroke="#6366f1"
+                    stroke="#10b981"
                     strokeWidth="3"
                     strokeLinecap="round"
                   />
@@ -599,7 +600,7 @@ export default function DashboardPage() {
                       cx={40 + idx * 85} 
                       cy={180 - val * 0.8} 
                       r="4" 
-                      fill="#6366f1" 
+                      fill="#10b981" 
                       stroke="#ffffff" 
                       strokeWidth="1.5" 
                     />
@@ -651,7 +652,7 @@ export default function DashboardPage() {
                     cy="72" 
                     r="50" 
                     fill="transparent" 
-                    stroke="#6366f1" 
+                    stroke="#10b981" 
                     strokeWidth="15" 
                     strokeDasharray="314.15" 
                     strokeDashoffset={314.15 * (1 - 0.13)} 
@@ -689,7 +690,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                     <span>In Transit</span>
                   </div>
                   <span className="text-slate-800">20 (13%)</span>
@@ -717,11 +718,11 @@ export default function DashboardPage() {
                     <h3 className="text-sm font-bold text-slate-900">Recent Shipments</h3>
                     <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Latest deliveries and status details</p>
                   </div>
-                  <a href="#shipments" className="text-xs font-bold text-indigo-600 hover:underline">View All</a>
+                  <a href="#shipments" className="text-xs font-bold text-emerald-600 hover:underline">View All</a>
                 </div>
 
                 {/* Search query field inside table header */}
-                <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-2 mb-4 bg-slate-50 focus-within:bg-white focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100 transition-all max-w-sm">
+                <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-2 mb-4 bg-slate-50 focus-within:bg-white focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100 transition-all max-w-sm">
                   <Search className="w-4 h-4 text-slate-400" />
                   <input
                     type="text"
@@ -746,7 +747,7 @@ export default function DashboardPage() {
                     <tbody className="text-xs font-semibold text-slate-700 divide-y divide-slate-50">
                       {filteredShipments.map((shipment) => (
                         <tr key={shipment.id} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-3.5 text-indigo-600 font-bold pr-4">{shipment.id}</td>
+                          <td className="py-3.5 text-emerald-600 font-bold pr-4">{shipment.id}</td>
                           <td className="py-3.5 pr-4 text-slate-800">{shipment.route}</td>
                           <td className="py-3.5 pr-4 text-slate-500">{shipment.driver}</td>
                           <td className="py-3.5">
@@ -783,7 +784,7 @@ export default function DashboardPage() {
                     <h3 className="text-sm font-bold text-slate-900">Recent Activities</h3>
                     <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Real-time status updates feed</p>
                   </div>
-                  <a href="#activities" className="text-xs font-bold text-indigo-600 hover:underline">View All</a>
+                  <a href="#activities" className="text-xs font-bold text-emerald-600 hover:underline">View All</a>
                 </div>
 
                 {/* Activities list feed */}
@@ -817,7 +818,7 @@ export default function DashboardPage() {
                     <h3 className="text-sm font-bold text-slate-900">Drivers Status</h3>
                     <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Active drivers status distribution</p>
                   </div>
-                  <a href="#drivers" className="text-xs font-bold text-indigo-600 hover:underline">View All</a>
+                  <a href="#drivers" className="text-xs font-bold text-emerald-600 hover:underline">View All</a>
                 </div>
               </div>
 
@@ -885,9 +886,9 @@ export default function DashboardPage() {
                   {/* Create Shipment */}
                   <button 
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
+                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-emerald-600 hover:shadow-lg hover:shadow-emerald-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 flex items-center justify-center text-indigo-600 group-hover:text-white transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 flex items-center justify-center text-emerald-600 group-hover:text-white transition-colors">
                       <Plus className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">Create Shipment</span>
@@ -896,9 +897,9 @@ export default function DashboardPage() {
                   {/* Add Driver */}
                   <button 
                     onClick={() => alert("Add Driver portal mock.")}
-                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
+                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-emerald-600 hover:shadow-lg hover:shadow-emerald-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 flex items-center justify-center text-indigo-600 group-hover:text-white transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 flex items-center justify-center text-emerald-600 group-hover:text-white transition-colors">
                       <UserCheck className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">Add Driver</span>
@@ -907,9 +908,9 @@ export default function DashboardPage() {
                   {/* Add Vehicle */}
                   <button 
                     onClick={() => alert("Add Vehicle portal mock.")}
-                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
+                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-emerald-600 hover:shadow-lg hover:shadow-emerald-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 flex items-center justify-center text-indigo-600 group-hover:text-white transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 flex items-center justify-center text-emerald-600 group-hover:text-white transition-colors">
                       <Navigation className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">Add Vehicle</span>
@@ -918,9 +919,9 @@ export default function DashboardPage() {
                   {/* Create Manager */}
                   <button 
                     onClick={() => alert("Create Manager portal mock.")}
-                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
+                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-emerald-600 hover:shadow-lg hover:shadow-emerald-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 flex items-center justify-center text-indigo-600 group-hover:text-white transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 flex items-center justify-center text-emerald-600 group-hover:text-white transition-colors">
                       <User className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">Create Manager</span>
@@ -929,9 +930,9 @@ export default function DashboardPage() {
                   {/* View Reports */}
                   <button 
                     onClick={() => alert("View Reports portal mock.")}
-                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
+                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-emerald-600 hover:shadow-lg hover:shadow-emerald-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 flex items-center justify-center text-indigo-600 group-hover:text-white transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 flex items-center justify-center text-emerald-600 group-hover:text-white transition-colors">
                       <BarChart3 className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">View Reports</span>
@@ -940,9 +941,9 @@ export default function DashboardPage() {
                   {/* Timeline */}
                   <button 
                     onClick={() => alert("View Timeline Portal mock.")}
-                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-indigo-600 hover:shadow-lg hover:shadow-indigo-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
+                    className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-emerald-600 hover:shadow-lg hover:shadow-emerald-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 flex items-center justify-center text-indigo-600 group-hover:text-white transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 flex items-center justify-center text-emerald-600 group-hover:text-white transition-colors">
                       <Clock className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-bold text-slate-800">Timeline</span>
@@ -961,7 +962,7 @@ export default function DashboardPage() {
                 <h3 className="text-sm font-bold text-slate-900">Shipments On Map</h3>
                 <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Real-time coordinates and GPS tracking paths</p>
               </div>
-              <a href="#map" className="text-xs font-bold text-indigo-600 hover:underline">View Full Map</a>
+              <a href="#map" className="text-xs font-bold text-emerald-600 hover:underline">View Full Map</a>
             </div>
 
             {/* Simulated Map Canvas */}
@@ -980,7 +981,7 @@ export default function DashboardPage() {
                 <path 
                   d="M 150 150 Q 300 130 400 90 T 650 50" 
                   fill="none" 
-                  stroke="#6366f1" 
+                  stroke="#10b981" 
                   strokeWidth="3" 
                   strokeLinecap="round" 
                   strokeDasharray="10 5 animate-dash"
@@ -988,13 +989,13 @@ export default function DashboardPage() {
 
                 {/* Map locations pins */}
                 {/* Kochi */}
-                <circle cx="150" cy="150" r="10" fill="#6366f1" opacity="0.15" />
-                <circle cx="150" cy="150" r="5" fill="#6366f1" />
+                <circle cx="150" cy="150" r="10" fill="#10b981" opacity="0.15" />
+                <circle cx="150" cy="150" r="5" fill="#10b981" />
                 <text x="150" y="175" fill="#475569" fontSize="10" fontWeight="bold" textAnchor="middle">Kochi</text>
 
                 {/* Thrissur */}
-                <circle cx="400" cy="90" r="10" fill="#6366f1" opacity="0.15" />
-                <circle cx="400" cy="90" r="5" fill="#6366f1" />
+                <circle cx="400" cy="90" r="10" fill="#10b981" opacity="0.15" />
+                <circle cx="400" cy="90" r="5" fill="#10b981" />
                 <text x="400" y="115" fill="#475569" fontSize="10" fontWeight="bold" textAnchor="middle">Thrissur</text>
 
                 {/* Calicut */}
@@ -1005,7 +1006,7 @@ export default function DashboardPage() {
 
               {/* Moving truck animations on the routes */}
               <div 
-                className="absolute w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/20"
+                className="absolute w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/20"
                 style={{
                   top: '110px',
                   left: '260px',
@@ -1059,12 +1060,12 @@ export default function DashboardPage() {
               </button>
 
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
                   <PlusCircle className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900">Create New Shipment</h3>
-                  <p className="text-xs text-slate-400">Add a new operational shipment dispatch to LogiTrack</p>
+                  <p className="text-xs text-slate-400">Add a new operational shipment dispatch to Naxivo</p>
                 </div>
               </div>
 
@@ -1079,7 +1080,7 @@ export default function DashboardPage() {
                     placeholder="e.g. Kochi"
                     value={newOrigin}
                     onChange={(e) => setNewOrigin(e.target.value)}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 font-medium"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium"
                   />
                 </div>
 
@@ -1092,7 +1093,7 @@ export default function DashboardPage() {
                     placeholder="e.g. Calicut"
                     value={newDestination}
                     onChange={(e) => setNewDestination(e.target.value)}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 font-medium"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium"
                   />
                 </div>
 
@@ -1102,10 +1103,10 @@ export default function DashboardPage() {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Arjun Mathew"
+                    placeholder="e.g. Alex Johnson"
                     value={newDriver}
                     onChange={(e) => setNewDriver(e.target.value)}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 font-medium"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium"
                   />
                 </div>
 
@@ -1115,7 +1116,7 @@ export default function DashboardPage() {
                   <select
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value as any)}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 bg-white font-medium cursor-pointer"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 bg-white font-medium cursor-pointer"
                   >
                     <option value="IN TRANSIT">IN TRANSIT</option>
                     <option value="DELIVERED">DELIVERED</option>
@@ -1134,7 +1135,7 @@ export default function DashboardPage() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-indigo-600 text-white hover:bg-indigo-700 font-bold text-xs py-3 rounded-xl transition-all shadow-md shadow-indigo-600/10"
+                    className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 font-bold text-xs py-3 rounded-xl transition-all shadow-md shadow-emerald-600/10"
                   >
                     Create Dispatch
                   </button>

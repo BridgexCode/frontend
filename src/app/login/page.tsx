@@ -3,34 +3,35 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  User, 
   Mail, 
   Lock, 
   ShieldCheck, 
   Eye, 
   EyeOff, 
-  Truck,
+  Network,
   ArrowRight,
   CheckCircle2,
   AlertCircle,
   LogIn
 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
-  // Form State
+  const router = useRouter();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  // UI State
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Validation
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
@@ -49,39 +50,41 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submission handler
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
-    // Simulate API login delay
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await login(email, password);
       setIsSuccess(true);
-    }, 1200);
+    } catch (err) {
+      setErrors({ form: err instanceof Error ? err.message : "Login failed" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8 font-sans">
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-xl overflow-hidden grid lg:grid-cols-12 min-h-[700px]">
         
-        {/* Left Side Panel - Brand Intro (matches Register UI) */}
+        {/* Left Side Panel - Brand Intro */}
         <motion.div 
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="lg:col-span-5 bg-indigo-50/50 p-8 md:p-12 flex flex-col justify-between border-r border-slate-100"
+          className="lg:col-span-5 bg-emerald-50/50 p-8 md:p-12 flex flex-col justify-between border-r border-slate-100"
         >
           {/* Header Branding */}
           <div>
             <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/20">
-                <Truck className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/20">
+                <Network className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">LogiTrack</span>
+                <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">Naxivo</span>
                 <span className="text-[10px] font-semibold text-slate-400 tracking-wide">Logistics & Shipment Management</span>
               </div>
             </div>
@@ -90,16 +93,16 @@ export default function LoginPage() {
           {/* Graphic & Info text block */}
           <div className="my-10">
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-[1.15] mb-4">
-              Manage your logistics operations seamlessly <span className="text-indigo-600">in one place</span>
+              Manage your logistics operations seamlessly <span className="text-emerald-600">in one place</span>
             </h2>
             <p className="text-slate-500 text-sm leading-relaxed mb-8">
               Sign in to access your operations dashboard, track fleets, and manage shipments.
             </p>
 
             {/* Illustration Graphic */}
-            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-indigo-100/30 flex items-center justify-center border border-indigo-100/50 p-2 shadow-inner">
+            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-emerald-100/30 flex items-center justify-center p-2">
               <Image
-                src="/register-illustration.png"
+                src="/loginImage.webp"
                 alt="Logistics warehouse & truck illustration"
                 fill
                 priority
@@ -111,7 +114,7 @@ export default function LoginPage() {
 
           {/* Security Badge */}
           <div className="bg-white border border-slate-100 p-4 rounded-2xl flex items-center gap-3.5 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -138,7 +141,7 @@ export default function LoginPage() {
               >
                 {/* Form Title */}
                 <div className="flex items-center gap-3.5 mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner">
                     <LogIn className="w-6 h-6" />
                   </div>
                   <div>
@@ -146,6 +149,14 @@ export default function LoginPage() {
                     <p className="text-xs text-slate-400 font-medium mt-0.5">Enter your credentials to access your account</p>
                   </div>
                 </div>
+
+                {/* Form Error */}
+                {errors.form && (
+                  <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-100 rounded-xl">
+                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                    <p className="text-xs font-bold text-red-600">{errors.form}</p>
+                  </div>
+                )}
 
                 {/* Form Start */}
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -156,7 +167,7 @@ export default function LoginPage() {
                       Email Address <span className="text-red-500">*</span>
                     </label>
                     <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
-                      errors.email ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100"
+                      errors.email ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100"
                     }`}>
                       <Mail className={`w-5 h-5 shrink-0 ${errors.email ? "text-red-400" : "text-slate-400"}`} />
                       <input
@@ -181,12 +192,12 @@ export default function LoginPage() {
                       <label className="text-xs font-bold text-slate-700 block">
                         Password <span className="text-red-500">*</span>
                       </label>
-                      <span className="text-xs font-semibold text-indigo-600 hover:underline cursor-pointer">
+                      <span className="text-xs font-semibold text-emerald-600 hover:underline cursor-pointer">
                         Forgot password?
                       </span>
                     </div>
                     <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
-                      errors.password ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100"
+                      errors.password ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100"
                     }`}>
                       <Lock className={`w-5 h-5 shrink-0 ${errors.password ? "text-red-400" : "text-slate-400"}`} />
                       <input
@@ -219,7 +230,7 @@ export default function LoginPage() {
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                        className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
                       />
                       <span className="text-xs font-semibold text-slate-500">
                         Remember me on this device
@@ -231,7 +242,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-indigo-600 text-white rounded-xl py-3.5 px-6 font-bold text-sm hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/10 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+                    className="w-full bg-emerald-600 text-white rounded-xl py-3.5 px-6 font-bold text-sm hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
                   >
                     <LogIn className="w-4.5 h-4.5 group-hover:translate-x-0.5 transition-transform" />
                     <span>{isSubmitting ? "Signing In..." : "Sign In"}</span>
@@ -240,7 +251,7 @@ export default function LoginPage() {
                   {/* Register Redirect */}
                   <div className="text-center pt-2">
                     <p className="text-xs font-semibold text-slate-400">
-                      Don&apos;t have an account? <Link href="/register" className="text-indigo-600 hover:underline cursor-pointer">Register</Link>
+                      Don&apos;t have an account? <Link href="/register" className="text-emerald-600 hover:underline cursor-pointer">Register</Link>
                     </p>
                   </div>
 
@@ -263,7 +274,7 @@ export default function LoginPage() {
                 </p>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 bg-indigo-600 text-white font-bold text-sm px-6 py-3 rounded-xl hover:bg-indigo-700 active:scale-95 transition-all"
+                  className="inline-flex items-center gap-2 bg-emerald-600 text-white font-bold text-sm px-6 py-3 rounded-xl hover:bg-emerald-700 active:scale-95 transition-all"
                 >
                   <span>Go to Dashboard</span>
                   <ArrowRight className="w-4 h-4" />

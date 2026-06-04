@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Network } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +8,56 @@ import { NAV_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export const Navbar: React.FC = () => {
+  const [activeSection, setActiveSection] = useState<string>("");
+
+  useEffect(() => {
+    // Determine active section from current hash on load
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        setActiveSection(hash);
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+    window.addEventListener("popstate", handleHashChange);
+
+    // Intersection Observer to detect section in view on scroll
+    const sections = ["features", "workflow", "solutions", "contact"];
+    const observerOptions = {
+      root: null,
+      rootMargin: "-30% 0px -50% 0px", // Trigger when section occupies the main view area
+      threshold: 0.1,
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute("id");
+          if (id) {
+            setActiveSection(`#${id}`);
+          }
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    sections.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+      window.removeEventListener("popstate", handleHashChange);
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <>
       {/* Desktop Sticky Header */}
@@ -15,23 +65,29 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center gap-2">
           <Network className="text-secondary w-8 h-8" />
           <span className="font-headline-lg text-lg md:text-xl font-bold text-on-surface tracking-tight">
-            NX Group
+            Naxivo
           </span>
         </div>
         
         <nav className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className={cn(
-                "text-sm font-semibold transition-colors duration-200 text-on-surface-variant hover:text-on-surface",
-                link.label === "Solutions" && "text-secondary font-bold border-b-2 border-secondary pb-1"
-              )}
-            >
-              {link.label}
-            </a>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isActive = activeSection === link.href;
+            return (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => setActiveSection(link.href)}
+                className={cn(
+                  "text-sm font-semibold transition-all duration-200 pb-1 border-b-2",
+                  isActive
+                    ? "text-secondary border-secondary font-bold"
+                    : "text-on-surface-variant hover:text-on-surface border-transparent"
+                )}
+              >
+                {link.label}
+              </a>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-4">
@@ -52,16 +108,20 @@ export const Navbar: React.FC = () => {
       <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 bg-white/80 backdrop-blur-lg border-t border-outline-variant/20 pb-safe px-2 rounded-t-xl shadow-[0_-4px_20px_rgba(34,197,94,0.15)]">
         {NAV_LINKS.map((link) => {
           const Icon = link.icon;
+          const isActive = activeSection === link.href;
           return (
             <a
               key={link.label}
               href={link.href}
+              onClick={() => setActiveSection(link.href)}
               className={cn(
-                "flex flex-col items-center justify-center gap-0.5 text-on-surface-variant/60 hover:text-on-surface transition-colors",
-                link.label === "Solutions" && "text-secondary drop-shadow-[0_0_8px_rgba(74,225,118,0.6)] font-bold"
+                "flex flex-col items-center justify-center gap-0.5 transition-colors",
+                isActive 
+                  ? "text-secondary drop-shadow-[0_0_8px_rgba(74,225,118,0.6)] font-bold" 
+                  : "text-on-surface-variant/60 hover:text-on-surface"
               )}
             >
-              {Icon && <Icon className="w-5 h-5" />}
+              {Icon && <Icon className={cn("w-5 h-5", isActive ? "text-secondary" : "text-on-surface-variant/60")} />}
               <span className="text-[10px] font-semibold tracking-tight">{link.label}</span>
             </a>
           );

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Building2, 
@@ -15,13 +16,11 @@ import {
   ShieldCheck, 
   Eye, 
   EyeOff, 
-  Truck,
-  ArrowRight,
-  CheckCircle2,
+  Network,
   AlertCircle
 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
-// List of supported countries
 const COUNTRIES = [
   { code: "IN", name: "India", dialCode: "+91", flag: "🇮🇳" },
   { code: "US", name: "United States", dialCode: "+1", flag: "🇺🇸" },
@@ -30,7 +29,6 @@ const COUNTRIES = [
   { code: "AU", name: "Australia", dialCode: "+61", flag: "🇦🇺" },
 ];
 
-// List of corresponding timezones
 const TIMEZONES = [
   { value: "Asia/Kolkata", label: "(GMT+05:30) Asia/Kolkata" },
   { value: "America/New_York", label: "(GMT-05:00) America/New_York" },
@@ -40,7 +38,9 @@ const TIMEZONES = [
 ];
 
 export default function RegisterPage() {
-  // Form State
+  const { register } = useAuth();
+  const router = useRouter();
+
   const [orgName, setOrgName] = useState("");
   const [adminName, setAdminName] = useState("");
   const [email, setEmail] = useState("");
@@ -52,14 +52,11 @@ export default function RegisterPage() {
   const [timezone, setTimezone] = useState("Asia/Kolkata");
   const [agreeTerms, setAgreeTerms] = useState(false);
 
-  // UI State
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
-  // Handle Country Change (syncs Dial Code and Timezone defaults)
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCountryName = e.target.value;
     setCountry(selectedCountryName);
@@ -67,7 +64,6 @@ export default function RegisterPage() {
     const matched = COUNTRIES.find(c => c.name === selectedCountryName);
     if (matched) {
       setCountryCode(matched.code);
-      // Automatically default timezone based on country selection
       if (matched.code === "US") setTimezone("America/New_York");
       else if (matched.code === "GB") setTimezone("Europe/London");
       else if (matched.code === "CA") setTimezone("America/Toronto");
@@ -76,14 +72,12 @@ export default function RegisterPage() {
     }
   };
 
-  // Basic Validations
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!orgName.trim()) newErrors.orgName = "Organization name is required";
     if (!adminName.trim()) newErrors.adminName = "Admin full name is required";
     
-    // Email regex check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim()) {
       newErrors.email = "Email address is required";
@@ -91,14 +85,12 @@ export default function RegisterPage() {
       newErrors.email = "Please enter a valid email address";
     }
 
-    // Phone checks
     if (!phone.trim()) {
       newErrors.phone = "Phone number is required";
     } else if (!/^\d{7,15}$/.test(phone.replace(/\D/g, ""))) {
       newErrors.phone = "Please enter a valid phone number (7-15 digits)";
     }
 
-    // Password validations
     if (!password) {
       newErrors.password = "Password is required";
     } else if (password.length < 8) {
@@ -119,21 +111,30 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Form submission handler
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
-    // Simulate API registration delay
-    setTimeout(() => {
+    try {
+      await register({
+        orgName,
+        adminName,
+        email,
+        phone,
+        country,
+        timezone,
+        password,
+      });
+      router.push("/dashboard");
+    } catch (err) {
+      setErrors({ form: err instanceof Error ? err.message : "Registration failed" });
+    } finally {
       setIsSubmitting(false);
-      setIsSuccess(true);
-    }, 1500);
+    }
   };
 
-  // Selected Country details
   const currentCountry = COUNTRIES.find(c => c.code === countryCode) || COUNTRIES[0];
 
   return (
@@ -145,16 +146,16 @@ export default function RegisterPage() {
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="lg:col-span-5 bg-indigo-50/50 p-8 md:p-12 flex flex-col justify-between border-r border-slate-100"
+          className="lg:col-span-5 bg-emerald-50/50 p-8 md:p-12 flex flex-col justify-between border-r border-slate-100"
         >
           {/* Header Branding */}
           <div>
             <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/20">
-                <Truck className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/20">
+                <Network className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">LogiTrack</span>
+                <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">Naxivo</span>
                 <span className="text-[10px] font-semibold text-slate-400 tracking-wide">Logistics & Shipment Management</span>
               </div>
             </div>
@@ -163,16 +164,16 @@ export default function RegisterPage() {
           {/* Graphic & Info text block */}
           <div className="my-10">
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-[1.15] mb-4">
-              Manage your logistics operations seamlessly <span className="text-indigo-600">in one place</span>
+              Manage your logistics operations seamlessly <span className="text-emerald-600">in one place</span>
             </h2>
             <p className="text-slate-500 text-sm md:text-base leading-relaxed mb-8">
               Create your organization account and start managing shipments, drivers, vehicles and more.
             </p>
 
             {/* Illustration Graphic */}
-            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-indigo-100/30 flex items-center justify-center border border-indigo-100/50 p-2 shadow-inner">
+            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-emerald-100/30 flex items-center justify-center p-2">
               <Image
-                src="/register-illustration.png"
+                src="/loginImage.webp"
                 alt="Logistics warehouse & truck illustration"
                 fill
                 priority
@@ -184,7 +185,7 @@ export default function RegisterPage() {
 
           {/* Security Badge */}
           <div className="bg-white border border-slate-100 p-4 rounded-2xl flex items-center gap-3.5 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -201,309 +202,284 @@ export default function RegisterPage() {
           transition={{ duration: 0.6 }}
           className="lg:col-span-7 p-8 md:p-12 lg:p-16 flex flex-col justify-center"
         >
-          <AnimatePresence mode="wait">
-            {!isSuccess ? (
-              <motion.div
-                key="register-form"
-                initial={{ opacity: 1 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Form Title */}
-                <div className="flex items-center gap-3.5 mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
-                    <Building2 className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Register Organization</h1>
-                    <p className="text-xs text-slate-400 font-medium mt-0.5">Create your organization account to get started</p>
-                  </div>
-                </div>
+          <div>
+            {/* Form Title */}
+            <div className="flex items-center gap-3.5 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner">
+                <Building2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Register Organization</h1>
+                <p className="text-xs text-slate-400 font-medium mt-0.5">Create your organization account to get started</p>
+              </div>
+            </div>
 
-                {/* Form Start */}
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  
-                  {/* Grid Rows for Inputs */}
-                  <div className="grid md:grid-cols-2 gap-5">
-                    
-                    {/* Organization Name */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 block">
-                        Organization Name <span className="text-red-500">*</span>
-                      </label>
-                      <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
-                        errors.orgName ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100"
-                      }`}>
-                        <Building2 className={`w-5 h-5 shrink-0 ${errors.orgName ? "text-red-400" : "text-slate-400"}`} />
-                        <input
-                          type="text"
-                          placeholder="Enter organization name"
-                          value={orgName}
-                          onChange={(e) => setOrgName(e.target.value)}
-                          className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
-                        />
-                      </div>
-                      {errors.orgName && (
-                        <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          <span>{errors.orgName}</span>
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Admin Full Name */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 block">
-                        Admin Full Name <span className="text-red-500">*</span>
-                      </label>
-                      <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
-                        errors.adminName ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100"
-                      }`}>
-                        <User className={`w-5 h-5 shrink-0 ${errors.adminName ? "text-red-400" : "text-slate-400"}`} />
-                        <input
-                          type="text"
-                          placeholder="Enter your full name"
-                          value={adminName}
-                          onChange={(e) => setAdminName(e.target.value)}
-                          className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
-                        />
-                      </div>
-                      {errors.adminName && (
-                        <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          <span>{errors.adminName}</span>
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Email Address */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 block">
-                        Email Address <span className="text-red-500">*</span>
-                      </label>
-                      <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
-                        errors.email ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100"
-                      }`}>
-                        <Mail className={`w-5 h-5 shrink-0 ${errors.email ? "text-red-400" : "text-slate-400"}`} />
-                        <input
-                          type="email"
-                          placeholder="Enter email address"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
-                        />
-                      </div>
-                      {errors.email && (
-                        <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          <span>{errors.email}</span>
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Phone Number */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 block">
-                        Phone Number <span className="text-red-500">*</span>
-                      </label>
-                      <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
-                        errors.phone ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100"
-                      }`}>
-                        <Phone className={`w-5 h-5 shrink-0 ${errors.phone ? "text-red-400" : "text-slate-400"}`} />
-                        <input
-                          type="tel"
-                          placeholder="Enter phone number"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
-                        />
-                        
-                        {/* Simulated country code widget */}
-                        <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-0.5 select-none shrink-0 text-xs font-semibold text-slate-600">
-                          <span>{currentCountry.flag}</span>
-                          <span>{currentCountry.dialCode}</span>
-                        </div>
-                      </div>
-                      {errors.phone && (
-                        <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          <span>{errors.phone}</span>
-                        </p>
-                      )}
-                    </div>
-
-                  </div>
-
-                  {/* Password Field */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 block">
-                      Password <span className="text-red-500">*</span>
-                    </label>
-                    <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
-                      errors.password ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100"
-                    }`}>
-                      <Lock className={`w-5 h-5 shrink-0 ${errors.password ? "text-red-400" : "text-slate-400"}`} />
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="text-slate-400 hover:text-slate-600 transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                    <p className={`text-[10px] font-medium transition-colors ${errors.password ? "text-red-500 font-bold" : "text-slate-400"}`}>
-                      Password must be at least 8 characters long
-                    </p>
-                  </div>
-
-                  {/* Confirm Password Field */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 block">
-                      Confirm Password <span className="text-red-500">*</span>
-                    </label>
-                    <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
-                      errors.confirmPassword ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100"
-                    }`}>
-                      <Lock className={`w-5 h-5 shrink-0 ${errors.confirmPassword ? "text-red-400" : "text-slate-400"}`} />
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="text-slate-400 hover:text-slate-600 transition-colors"
-                      >
-                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                    <p className={`text-[10px] font-medium transition-colors ${errors.confirmPassword ? "text-red-500 font-bold" : "text-slate-400"}`}>
-                      Confirm your password
-                    </p>
-                  </div>
-
-                  {/* Grid Row for Dropdowns */}
-                  <div className="grid md:grid-cols-2 gap-5">
-                    
-                    {/* Country Dropdown */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 block">
-                        Country <span className="text-red-500">*</span>
-                      </label>
-                      <div className="flex items-center border border-slate-200 rounded-xl px-3.5 py-3 gap-3 transition-all focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100 bg-white">
-                        <Globe className="w-5 h-5 shrink-0 text-slate-400" />
-                        <select
-                          value={country}
-                          onChange={handleCountryChange}
-                          className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium appearance-none cursor-pointer"
-                        >
-                          {COUNTRIES.map((c) => (
-                            <option key={c.code} value={c.name}>
-                              {c.flag} &nbsp; {c.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Timezone Dropdown */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 block">
-                        Time Zone <span className="text-red-500">*</span>
-                      </label>
-                      <div className="flex items-center border border-slate-200 rounded-xl px-3.5 py-3 gap-3 transition-all focus-within:border-indigo-600 focus-within:ring-2 focus-within:ring-indigo-100 bg-white">
-                        <Clock className="w-5 h-5 shrink-0 text-slate-400" />
-                        <select
-                          value={timezone}
-                          onChange={(e) => setTimezone(e.target.value)}
-                          className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium appearance-none cursor-pointer"
-                        >
-                          {TIMEZONES.map((t) => (
-                            <option key={t.value} value={t.value}>
-                              {t.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* Terms and Privacy Checkbox */}
-                  <div className="space-y-2 pt-1">
-                    <label className="flex items-start gap-3 select-none cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={agreeTerms}
-                        onChange={(e) => setAgreeTerms(e.target.checked)}
-                        className="w-4 h-4 mt-0.5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
-                      />
-                      <span className="text-xs font-medium text-slate-500 leading-normal">
-                        I agree to the <span className="text-indigo-600 hover:underline cursor-pointer">Terms of Service</span> and <span className="text-indigo-600 hover:underline cursor-pointer">Privacy Policy</span>
-                      </span>
-                    </label>
-                    {errors.agreeTerms && (
-                      <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
-                        <AlertCircle className="w-3.5 h-3.5" />
-                        <span>{errors.agreeTerms}</span>
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-indigo-600 text-white rounded-xl py-3.5 px-6 font-bold text-sm hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/10 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
-                  >
-                    <Building2 className="w-4.5 h-4.5 group-hover:scale-115 transition-transform" />
-                    <span>{isSubmitting ? "Creating Organization..." : "Create Organization"}</span>
-                  </button>
-
-                  {/* Login Redirect */}
-                  <div className="text-center pt-2">
-                    <p className="text-xs font-semibold text-slate-400">
-                      Already have an account? <Link href="/login" className="text-indigo-600 hover:underline cursor-pointer">Login</Link>
-                    </p>
-                  </div>
-
-                </form>
-              </motion.div>
-            ) : (
-              // Success Screen
-              <motion.div
-                key="success-screen"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-12 px-4 flex flex-col items-center justify-center"
-              >
-                <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-green-500 mb-6 shadow-inner">
-                  <CheckCircle2 className="w-10 h-10 animate-bounce" />
-                </div>
-                <h2 className="text-2xl font-extrabold text-slate-900 mb-3">Organization Registered!</h2>
-                <p className="text-slate-500 text-sm max-w-sm mx-auto leading-relaxed mb-8">
-                  Welcome to LogiTrack. We have successfully registered your organization account. Let's set up your first shipment.
-                </p>
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center gap-2 bg-indigo-600 text-white font-bold text-sm px-6 py-3 rounded-xl hover:bg-indigo-700 active:scale-95 transition-all"
-                >
-                  <span>Go to Dashboard</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </motion.div>
+            {/* Form Error */}
+            {errors.form && (
+              <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-100 rounded-xl">
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                <p className="text-xs font-bold text-red-600">{errors.form}</p>
+              </div>
             )}
-          </AnimatePresence>
+
+            {/* Form Start */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {/* Grid Rows for Inputs */}
+              <div className="grid md:grid-cols-2 gap-5">
+                
+                {/* Organization Name */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Organization Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
+                    errors.orgName ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100"
+                  }`}>
+                    <Building2 className={`w-5 h-5 shrink-0 ${errors.orgName ? "text-red-400" : "text-slate-400"}`} />
+                    <input
+                      type="text"
+                      placeholder="Enter organization name"
+                      value={orgName}
+                      onChange={(e) => setOrgName(e.target.value)}
+                      className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
+                    />
+                  </div>
+                  {errors.orgName && (
+                    <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>{errors.orgName}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* Admin Full Name */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Admin Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
+                    errors.adminName ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100"
+                  }`}>
+                    <User className={`w-5 h-5 shrink-0 ${errors.adminName ? "text-red-400" : "text-slate-400"}`} />
+                    <input
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={adminName}
+                      onChange={(e) => setAdminName(e.target.value)}
+                      className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
+                    />
+                  </div>
+                  {errors.adminName && (
+                    <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>{errors.adminName}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* Email Address */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
+                    errors.email ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100"
+                  }`}>
+                    <Mail className={`w-5 h-5 shrink-0 ${errors.email ? "text-red-400" : "text-slate-400"}`} />
+                    <input
+                      type="email"
+                      placeholder="Enter email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>{errors.email}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* Phone Number */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
+                    errors.phone ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100"
+                  }`}>
+                    <Phone className={`w-5 h-5 shrink-0 ${errors.phone ? "text-red-400" : "text-slate-400"}`} />
+                    <input
+                      type="tel"
+                      placeholder="Enter phone number"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
+                    />
+                    
+                    <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-0.5 select-none shrink-0 text-xs font-semibold text-slate-600">
+                      <span>{currentCountry.flag}</span>
+                      <span>{currentCountry.dialCode}</span>
+                    </div>
+                  </div>
+                  {errors.phone && (
+                    <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>{errors.phone}</span>
+                    </p>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Password Field */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
+                  errors.password ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100"
+                }`}>
+                  <Lock className={`w-5 h-5 shrink-0 ${errors.password ? "text-red-400" : "text-slate-400"}`} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className={`text-[10px] font-medium transition-colors ${errors.password ? "text-red-500 font-bold" : "text-slate-400"}`}>
+                  Password must be at least 8 characters long
+                </p>
+              </div>
+
+              {/* Confirm Password Field */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">
+                  Confirm Password <span className="text-red-500">*</span>
+                </label>
+                <div className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
+                  errors.confirmPassword ? "border-red-500 bg-red-50/10 focus-within:ring-2 focus-within:ring-red-100" : "border-slate-200 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100"
+                }`}>
+                  <Lock className={`w-5 h-5 shrink-0 ${errors.confirmPassword ? "text-red-400" : "text-slate-400"}`} />
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className={`text-[10px] font-medium transition-colors ${errors.confirmPassword ? "text-red-500 font-bold" : "text-slate-400"}`}>
+                  Confirm your password
+                </p>
+              </div>
+
+              {/* Grid Row for Dropdowns */}
+              <div className="grid md:grid-cols-2 gap-5">
+                
+                {/* Country Dropdown */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Country <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center border border-slate-200 rounded-xl px-3.5 py-3 gap-3 transition-all focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100 bg-white">
+                    <Globe className="w-5 h-5 shrink-0 text-slate-400" />
+                    <select
+                      value={country}
+                      onChange={handleCountryChange}
+                      className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium appearance-none cursor-pointer"
+                    >
+                      {COUNTRIES.map((c) => (
+                        <option key={c.code} value={c.name}>
+                          {c.flag} &nbsp; {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Timezone Dropdown */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Time Zone <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center border border-slate-200 rounded-xl px-3.5 py-3 gap-3 transition-all focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100 bg-white">
+                    <Clock className="w-5 h-5 shrink-0 text-slate-400" />
+                    <select
+                      value={timezone}
+                      onChange={(e) => setTimezone(e.target.value)}
+                      className="w-full bg-transparent text-sm text-slate-800 focus:outline-none placeholder:text-slate-400 font-medium appearance-none cursor-pointer"
+                    >
+                      {TIMEZONES.map((t) => (
+                        <option key={t.value} value={t.value}>
+                          {t.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Terms and Privacy Checkbox */}
+              <div className="space-y-2 pt-1">
+                <label className="flex items-start gap-3 select-none cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                  />
+                  <span className="text-xs font-medium text-slate-500 leading-normal">
+                    I agree to the <span className="text-emerald-600 hover:underline cursor-pointer">Terms of Service</span> and <span className="text-emerald-600 hover:underline cursor-pointer">Privacy Policy</span>
+                  </span>
+                </label>
+                {errors.agreeTerms && (
+                  <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>{errors.agreeTerms}</span>
+                  </p>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-emerald-600 text-white rounded-xl py-3.5 px-6 font-bold text-sm hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+              >
+                <Building2 className="w-4.5 h-4.5 group-hover:scale-115 transition-transform" />
+                <span>{isSubmitting ? "Creating Organization..." : "Create Organization"}</span>
+              </button>
+
+              {/* Login Redirect */}
+              <div className="text-center pt-2">
+                <p className="text-xs font-semibold text-slate-400">
+                  Already have an account? <Link href="/login" className="text-emerald-600 hover:underline cursor-pointer">Login</Link>
+                </p>
+              </div>
+
+            </form>
+          </div>
         </motion.div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { CLIENT_COMPANIES } from "@/lib/constants";
 
 export const Companies: React.FC = () => {
   return (
-    <section className="py-24 bg-white/50 border-y border-outline-variant/30">
+    <section id="solutions" className="py-24 bg-white/50 border-y border-outline-variant/30">
       <div className="w-full max-w-7xl mx-auto px-6 md:px-10">
         <p className="text-center text-xs font-semibold text-on-surface-variant uppercase tracking-[0.2em] mb-12">
           Empowering the world&apos;s leading logistics teams
