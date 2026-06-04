@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-secondary-fixed-dim: #4ae176;
+  --color-on-secondary-fixed-variant: #005321;
+  --color-on-surface: #191c1e;
+  --color-surface-tint: #565e74;
+  --color-surface-container-lowest: #ffffff;
+  --color-secondary-fixed: #6bff8f;
+  --color-secondary-container: #6bff8f;
+  --color-on-primary: #ffffff;
+  --color-primary: #000000;
+  --color-on-secondary-container: #007432;
+  --color-background: #f7f9fb;
+  --color-primary-fixed: #dae2fd;
+  --color-on-secondary: #ffffff;
+  --color-surface-container-low: #f2f4f6;
+  --color-on-tertiary-fixed: #0b1c30;
+  --color-surface-variant: #e0e3e5;
+  --color-inverse-surface: #2d3133;
+  --color-on-tertiary: #ffffff;
+  --color-on-error: #ffffff;
+  --color-outline: #76777d;
+  --color-on-primary-fixed-variant: #3f465c;
+  --color-error: #ba1a1a;
+  --color-surface: #f7f9fb;
+  --color-on-tertiary-container: #75859d;
+  --color-tertiary-fixed-dim: #b7c8e1;
+  --color-surface-container: #eceef0;
+  --color-on-surface-variant: #45464d;
+  --color-inverse-on-surface: #eff1f3;
+  --color-secondary: #006e2f;
+  --color-outline-variant: #c6c6cd;
+  --color-on-background: #191c1e;
+  --color-surface-container-highest: #e0e3e5;
+  --color-on-tertiary-fixed-variant: #38485d;
+  --color-surface-container-high: #e6e8ea;
+  --color-tertiary-fixed: #d3e4fe;
+  --color-surface-bright: #f7f9fb;
+  --color-primary-container: #131b2e;
+  --color-primary-fixed-dim: #bec6e0;
+  --color-surface-dim: #d8dadc;
+  --color-on-secondary-fixed: #002109;
+  --color-on-primary-fixed: #131b2e;
+  --color-tertiary-container: #0b1c30;
+  --color-tertiary: #000000;
+  --color-error-container: #ffdad6;
+  --color-inverse-primary: #bec6e0;
+  --color-on-primary-container: #7c839b;
+  --color-on-error-container: #93000a;
+
+  /* Font Families mapped to layout next/font variables */
+  --font-sans: var(--font-inter);
+  --font-title-md: var(--font-plus-jakarta-sans);
+  --font-body-lg: var(--font-inter);
+  --font-headline-lg: var(--font-plus-jakarta-sans);
+  --font-headline-xl: var(--font-plus-jakarta-sans);
+  --font-headline-lg-mobile: var(--font-plus-jakarta-sans);
+  --font-label-sm: var(--font-jetbrains-mono);
+  --font-label-xs: var(--font-jetbrains-mono);
+  --font-body-md: var(--font-inter);
+
+  /* Font Sizes */
+  --font-size-title-md: 18px;
+  --font-size-body-lg: 16px;
+  --font-size-headline-lg: 24px;
+  --font-size-headline-xl: 32px;
+  --font-size-headline-lg-mobile: 20px;
+  --font-size-label-sm: 12px;
+  --font-size-label-xs: 10px;
+  --font-size-body-md: 14px;
+
+
+  /* Border Radiuses */
+  --radius-DEFAULT: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+}
+
+/* Custom resets & presets */
+body {
+  min-height: max(884px, 100dvh);
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-body-lg), sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--color-secondary-fixed);
+  color: var(--color-on-secondary-fixed);
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
