@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { getUserByEmail, setToken } from "@/lib/auth-store";
+import { getUserByEmail, setToken } from "@/features/auth/stores/auth-store";
 
 export async function POST(request: Request) {
   try {

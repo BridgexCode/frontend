@@ -1,13 +1,13 @@
 import React from "react";
-import ShaderBackground from "@/components/landing/ShaderBackground";
-import Navbar from "@/components/landing/Navbar";
-import Hero from "@/components/landing/Hero";
-import Features from "@/components/landing/Features";
-import Workflow from "@/components/landing/Workflow";
-import Solutions from "@/components/landing/Solutions";
-import Companies from "@/components/landing/Companies";
-import CTA from "@/components/landing/CTA";
-import Footer from "@/components/landing/Footer";
+import { ShaderBackground } from "@/shared/components/landing/ShaderBackground";
+import { Navbar } from "@/shared/components/landing/Navbar";
+import { Hero } from "@/shared/components/landing/Hero";
+import { Features } from "@/shared/components/landing/Features";
+import { Workflow } from "@/shared/components/landing/Workflow";
+import { Solutions } from "@/shared/components/landing/Solutions";
+import { Companies } from "@/shared/components/landing/Companies";
+import { CTA } from "@/shared/components/landing/CTA";
+import { Footer } from "@/shared/components/landing/Footer";
 
 export default function Home() {
   return (

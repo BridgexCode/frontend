@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserIdByToken, getUserById } from "@/lib/auth-store";
+import { getUserIdByToken, getUserById } from "@/features/auth/stores/auth-store";
 
 export async function GET(request: Request) {
   try {
