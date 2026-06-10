@@ -44,7 +44,7 @@ export const Hero: React.FC = () => {
           {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-4">
             <Link href="/register">
-              <Button variant="shine" size="lg" className="w-full sm:w-auto">
+              <Button variant="shine" size="lg" className="w-full sm:w-auto text-white">
                 Get Started
               </Button>
             </Link>
