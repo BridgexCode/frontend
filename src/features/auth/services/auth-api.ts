@@ -1,5 +1,7 @@
 import type { User, RegisterData } from "../types";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("naxivo_token");
@@ -17,7 +19,7 @@ export async function fetchCurrentUser(): Promise<User> {
   const token = getStoredToken();
   if (!token) throw new Error("No token");
 
-  const res = await fetch("/api/auth/me", {
+  const res = await fetch(`${API_URL}/api/auth/ME`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -35,7 +37,7 @@ export async function loginUser(
   email: string,
   password: string
 ): Promise<{ user: User; token: string }> {
-  const res = await fetch("/api/auth/login", {
+  const res = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -53,7 +55,7 @@ export async function loginUser(
 export async function registerUser(
   data: RegisterData
 ): Promise<{ user: User; token: string }> {
-  const res = await fetch("/api/auth/register", {
+  const res = await fetch(`${API_URL}/api/auth/register-organization`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -66,4 +68,16 @@ export async function registerUser(
   }
 
   return { user: responseData.user, token: responseData.token };
+}
+
+export async function logoutUser(token: string): Promise<void> {
+  const res = await fetch(`${API_URL}/api/auth/logout`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error || "Logout failed");
+  }
 }

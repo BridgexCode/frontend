@@ -89,7 +89,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const token = authApi.getStoredToken();
+    try {
+      if (token) await authApi.logoutUser(token);
+    } catch {
+      // Proceed with local logout even if API call fails
+    }
     authApi.removeStoredToken();
     setUser(null);
   };
