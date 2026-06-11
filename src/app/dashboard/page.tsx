@@ -13,6 +13,7 @@ import {
   QuickActions,
   ShipmentsMap,
   CreateShipmentModal,
+  AddManagerModal,
 } from "@/features/dashboard";
 
 export default function DashboardPage() {
@@ -22,6 +23,7 @@ export default function DashboardPage() {
     notifications, setNotifications,
     searchQuery, setSearchQuery,
     isCreateModalOpen, setIsCreateModalOpen,
+    isCreateManagerModalOpen, setIsCreateManagerModalOpen,
     form, setForm,
     filteredShipments,
     totalShipmentsCount, deliveredCount, transitCount, delayedCount,
@@ -69,7 +71,10 @@ export default function DashboardPage() {
 
           <div className="grid lg:grid-cols-12 gap-8">
             <DriversStatusDonut />
-            <QuickActions onCreateShipment={() => setIsCreateModalOpen(true)} />
+            <QuickActions
+              onCreateShipment={() => setIsCreateModalOpen(true)}
+              onCreateManager={() => setIsCreateManagerModalOpen(true)}
+            />
           </div>
 
           <ShipmentsMap />
@@ -82,6 +87,11 @@ export default function DashboardPage() {
         form={form}
         onFormChange={setForm}
         onSubmit={handleCreateShipmentSubmit}
+      />
+
+      <AddManagerModal
+        open={isCreateManagerModalOpen}
+        onClose={() => setIsCreateManagerModalOpen(false)}
       />
 
       <style jsx global>{`

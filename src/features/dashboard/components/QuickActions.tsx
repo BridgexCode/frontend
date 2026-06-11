@@ -4,6 +4,7 @@ import { Plus, UserCheck, Navigation, User, BarChart3, Clock } from "lucide-reac
 
 interface QuickActionsProps {
   onCreateShipment: () => void;
+  onCreateManager: () => void;
 }
 
 const actions = [
@@ -15,10 +16,12 @@ const actions = [
   { label: "Timeline", icon: Clock, onClick: "timeline" as const },
 ];
 
-export function QuickActions({ onCreateShipment }: QuickActionsProps) {
+export function QuickActions({ onCreateShipment, onCreateManager }: QuickActionsProps) {
   const handleClick = (action: string) => {
     if (action === "createShipment") {
       onCreateShipment();
+    } else if (action === "createManager") {
+      onCreateManager();
     } else {
       alert(`${action.replace(/([A-Z])/g, " $1").trim()} portal mock.`);
     }
