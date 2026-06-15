@@ -30,6 +30,7 @@ export function useDashboard() {
   const [notifications, setNotifications] = useState(8);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreateManagerModalOpen, setIsCreateManagerModalOpen] = useState(false);
   const [shipments, setShipments] = useState<ShipmentRow[]>(INITIAL_SHIPMENTS);
   const [activities, setActivities] = useState<ActivityItem[]>(INITIAL_ACTIVITIES);
   const [form, setForm] = useState<NewShipmentForm>({
@@ -115,6 +116,8 @@ export function useDashboard() {
     setSearchQuery,
     isCreateModalOpen,
     setIsCreateModalOpen,
+    isCreateManagerModalOpen,
+    setIsCreateManagerModalOpen,
     form,
     setForm,
     shipments,

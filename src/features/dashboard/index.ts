@@ -11,3 +11,4 @@ export { DriversStatusDonut } from "./components/DriversStatusDonut";
 export { QuickActions } from "./components/QuickActions";
 export { ShipmentsMap } from "./components/ShipmentsMap";
 export { CreateShipmentModal } from "./components/CreateShipmentModal";
+export { AddManagerModal } from "./components/AddManagerModal";
