@@ -12,3 +12,7 @@ export { QuickActions } from "./components/QuickActions";
 export { ShipmentsMap } from "./components/ShipmentsMap";
 export { CreateShipmentModal } from "./components/CreateShipmentModal";
 export { AddManagerModal } from "./components/AddManagerModal";
+export { ManagersPage } from "./components/ManagersPage";
+export { ManagersFilters } from "./components/ManagersFilters";
+export { ManagersTable } from "./components/ManagersTable";
+export { ViewManagerModal } from "./components/ViewManagerModal";

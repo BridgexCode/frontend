@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   useDashboard,
   DashboardSidebar,
@@ -14,9 +15,22 @@ import {
   ShipmentsMap,
   CreateShipmentModal,
   AddManagerModal,
+  ManagersPage,
 } from "@/features/dashboard";
 
 export default function DashboardPage() {
+  const [activeSection, setActiveSection] = useState("dashboard");
+
+  useEffect(() => {
+    const updateHash = () => {
+      const hash = window.location.hash.replace("#", "") || "dashboard";
+      setActiveSection(hash);
+    };
+    updateHash();
+    window.addEventListener("hashchange", updateHash);
+    return () => window.removeEventListener("hashchange", updateHash);
+  }, []);
+
   const {
     sidebarOpen, setSidebarOpen,
     timeRange, setTimeRange,
@@ -34,7 +48,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans text-slate-800">
-      <DashboardSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <DashboardSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} activeSection={activeSection} />
 
       <div className="flex-1 flex flex-col overflow-x-hidden">
         <DashboardHeader
@@ -43,41 +57,49 @@ export default function DashboardPage() {
           onNotificationsClick={() => setNotifications(0)}
         />
 
-        <main className="flex-1 p-6 md:p-10 space-y-8 overflow-y-auto">
-          <MetricsCards
-            totalShipments={totalShipmentsCount}
-            delivered={deliveredCount}
-            inTransit={transitCount}
-            delayed={delayedCount}
-          />
+        <main className="flex-1 p-6 md:p-10 overflow-y-auto">
+          {activeSection === "managers" ? (
+            <ManagersPage />
+          ) : (
+            <div className="space-y-8">
+              <MetricsCards
+                totalShipments={totalShipmentsCount}
+                delivered={deliveredCount}
+                inTransit={transitCount}
+                delayed={delayedCount}
+              />
 
-          <div className="grid lg:grid-cols-12 gap-8">
-            <ShipmentsOverviewChart
-              data={activeChart}
-              timeRange={timeRange}
-              onTimeRangeChange={setTimeRange}
-            />
-            <ShipmentsStatusDonut />
-          </div>
+              <div className="grid lg:grid-cols-12 gap-8">
+                <ShipmentsOverviewChart
+                  data={activeChart}
+                  timeRange={timeRange}
+                  onTimeRangeChange={setTimeRange}
+                />
+                <ShipmentsStatusDonut />
+              </div>
 
-          <div className="grid lg:grid-cols-12 gap-8">
-            <RecentShipmentsTable
-              shipments={filteredShipments}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-            />
-            <ActivitiesFeed activities={activities} />
-          </div>
+              <div className="grid lg:grid-cols-12 gap-8">
+                <RecentShipmentsTable
+                  shipments={filteredShipments}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                />
+                <ActivitiesFeed activities={activities} />
+              </div>
 
-          <div className="grid lg:grid-cols-12 gap-8">
-            <DriversStatusDonut />
-            <QuickActions
-              onCreateShipment={() => setIsCreateModalOpen(true)}
-              onCreateManager={() => setIsCreateManagerModalOpen(true)}
-            />
-          </div>
+              <div className="grid lg:grid-cols-12 gap-8">
+                <DriversStatusDonut />
+                <QuickActions
+                  onCreateShipment={() => setIsCreateModalOpen(true)}
+                  onCreateManager={() => {
+                    window.location.hash = "managers";
+                  }}
+                />
+              </div>
 
-          <ShipmentsMap />
+              <ShipmentsMap />
+            </div>
+          )}
         </main>
       </div>
 
