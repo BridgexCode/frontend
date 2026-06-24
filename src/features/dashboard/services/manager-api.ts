@@ -37,6 +37,22 @@ export interface ApiManagerResponse {
   isDeleted?: boolean;
 }
 
+export async function fetchManagersApi(): Promise<ApiManagerResponse[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/users`, {
+      method: "GET",
+      headers: authHeaders(),
+      credentials: "include",
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || json.message || "Failed to fetch managers");
+    return json.data;
+  } catch (err) {
+    if (err instanceof Error) throw err;
+    throw new Error("Network error: Unable to reach server");
+  }
+}
+
 export async function createManagerApi(data: CreateManagerPayload): Promise<ApiManagerResponse> {
   try {
     const res = await fetch(`${API_URL}/api/users`, {

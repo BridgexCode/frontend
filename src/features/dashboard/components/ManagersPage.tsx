@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import type { Manager } from "@/features/dashboard/services/mock-data";
-import { createManagerApi, updateManagerApi, toggleActiveManagerApi, softDeleteManagerApi, type CreateManagerPayload } from "@/features/dashboard/services/manager-api";
+import { fetchManagersApi, createManagerApi, updateManagerApi, toggleActiveManagerApi, softDeleteManagerApi, type CreateManagerPayload } from "@/features/dashboard/services/manager-api";
 import { ManagersFilters } from "./ManagersFilters";
 import { ManagersTable } from "./ManagersTable";
 import { ViewManagerModal } from "./ViewManagerModal";
@@ -21,6 +21,31 @@ export function ManagersPage() {
   const [selectedManager, setSelectedManager] = useState<Manager | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingManager, setEditingManager] = useState<Manager | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    fetchManagersApi()
+      .then((data) => {
+        if (!mounted) return;
+        const mapped: Manager[] = data.map((m) => ({
+          id: m.id,
+          name: m.name,
+          email: m.email,
+          phone: m.phone || "",
+          status: m.isActive ? "ACTIVE" : "INACTIVE",
+          createdAt: "",
+        }));
+        setManagers(mapped);
+      })
+      .catch(() => {
+        // silently fail — table will show empty state
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => { mounted = false; };
+  }, []);
 
   const filtered = useMemo(() => {
     return managers.filter((m) => {
