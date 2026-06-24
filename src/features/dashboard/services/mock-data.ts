@@ -78,4 +78,22 @@ export const CHART_DATA: Record<string, ChartData> = {
   },
 };
 
+export interface Manager {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+  createdAt: string;
+}
+
+export const MOCK_MANAGERS: Manager[] = [
+  { id: "M001", name: "Divya Menon", email: "divya@naxivo.com", phone: "9988776655", status: "ACTIVE", createdAt: "2026-01-12" },
+  { id: "M002", name: "Manoj Pillai", email: "manoj@naxivo.com", phone: "9988776666", status: "SUSPENDED", createdAt: "2026-03-01" },
+  { id: "M003", name: "Sneha Kapoor", email: "sneha@naxivo.com", phone: "9988776667", status: "ACTIVE", createdAt: "2026-02-15" },
+  { id: "M004", name: "Rohit Verma", email: "rohit@naxivo.com", phone: "9988776668", status: "ACTIVE", createdAt: "2026-04-10" },
+  { id: "M005", name: "Priya Sharma", email: "priya@naxivo.com", phone: "9988776669", status: "INACTIVE", createdAt: "2026-05-22" },
+  { id: "M006", name: "Arun Nair", email: "arun@naxivo.com", phone: "9988776670", status: "ACTIVE", createdAt: "2026-06-01" },
+];
+
 export type TimeRange = "This Week" | "Last Week";

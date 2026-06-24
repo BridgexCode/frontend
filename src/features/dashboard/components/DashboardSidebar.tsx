@@ -7,9 +7,10 @@ import { SIDEBAR_ITEMS } from "../services/mock-data";
 interface DashboardSidebarProps {
   open: boolean;
   onClose: () => void;
+  activeSection?: string;
 }
 
-function SidebarContent() {
+function SidebarContent({ activeSection = "dashboard" }: { activeSection?: string }) {
   return (
     <>
       <div className="flex items-center gap-2.5 mb-8">
@@ -23,20 +24,24 @@ function SidebarContent() {
       </div>
 
       <nav className="space-y-1.5">
-        {SIDEBAR_ITEMS.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-              item.active
-                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/15"
-                : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-            }`}
-          >
-            <item.icon className={`w-4.5 h-4.5 ${item.active ? "text-white" : "text-slate-400"}`} />
-            <span>{item.label}</span>
-          </a>
-        ))}
+          {SIDEBAR_ITEMS.map((item) => {
+            const itemKey = item.href.replace("/dashboard", "").replace("#", "") || "dashboard";
+            const isActive = itemKey === activeSection;
+            return (
+              <a
+                key={item.label}
+                href={item.href}
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+                  isActive
+                    ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/15"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <item.icon className={`w-4.5 h-4.5 ${isActive ? "text-white" : "text-slate-400"}`} />
+                <span>{item.label}</span>
+              </a>
+            );
+          })}
       </nav>
 
       <div className="space-y-4 pt-6 border-t border-slate-100 mt-6">
@@ -65,11 +70,11 @@ function SidebarContent() {
   );
 }
 
-export function DashboardSidebar({ open, onClose }: DashboardSidebarProps) {
+export function DashboardSidebar({ open, onClose, activeSection = "dashboard" }: DashboardSidebarProps) {
   return (
     <>
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-100 p-6 shrink-0 justify-between h-screen sticky top-0">
-        <SidebarContent />
+        <SidebarContent activeSection={activeSection} />
       </aside>
 
       <AnimatePresence>
@@ -99,7 +104,7 @@ export function DashboardSidebar({ open, onClose }: DashboardSidebarProps) {
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                <SidebarContent />
+                <SidebarContent activeSection={activeSection} />
               </div>
             </motion.aside>
           </>

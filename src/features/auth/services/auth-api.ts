@@ -19,8 +19,9 @@ export async function fetchCurrentUser(): Promise<User> {
   const token = getStoredToken();
   if (!token) throw new Error("No token");
 
-  const res = await fetch(`${API_URL}/api/auth/ME`, {
+  const res = await fetch(`${API_URL}/api/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
 
   const data = await res.json();
@@ -40,6 +41,7 @@ export async function loginUser(
   const res = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ email, password }),
   });
 
@@ -58,6 +60,7 @@ export async function registerUser(
   const res = await fetch(`${API_URL}/api/auth/register-organization`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(data),
   });
 
@@ -74,6 +77,7 @@ export async function logoutUser(token: string): Promise<void> {
   const res = await fetch(`${API_URL}/api/auth/logout`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
 
   if (!res.ok) {
