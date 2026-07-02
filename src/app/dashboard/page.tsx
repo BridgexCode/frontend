@@ -16,6 +16,13 @@ import {
   CreateShipmentModal,
   AddManagerModal,
   ManagersPage,
+  ShipmentsPage,
+  DriversPage,
+  VehiclesPage,
+  TimelinePage,
+  ReportsPage,
+  AlertsPage,
+  SettingsPage,
 } from "@/features/dashboard";
 
 export default function DashboardPage() {
@@ -60,6 +67,20 @@ export default function DashboardPage() {
         <main className="flex-1 p-6 md:p-10 overflow-y-auto">
           {activeSection === "managers" ? (
             <ManagersPage />
+          ) : activeSection === "shipments" ? (
+            <ShipmentsPage />
+          ) : activeSection === "drivers" ? (
+            <DriversPage />
+          ) : activeSection === "vehicles" ? (
+            <VehiclesPage />
+          ) : activeSection === "timeline" ? (
+            <TimelinePage />
+          ) : activeSection === "reports" ? (
+            <ReportsPage />
+          ) : activeSection === "alerts" ? (
+            <AlertsPage />
+          ) : activeSection === "settings" ? (
+            <SettingsPage />
           ) : (
             <div className="space-y-8">
               <MetricsCards
