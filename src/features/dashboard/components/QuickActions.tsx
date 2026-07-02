@@ -7,23 +7,25 @@ interface QuickActionsProps {
   onCreateManager: () => void;
 }
 
-const actions = [
-  { label: "Create Shipment", icon: Plus, onClick: "createShipment" as const },
-  { label: "Add Driver", icon: UserCheck, onClick: "addDriver" as const },
-  { label: "Add Vehicle", icon: Navigation, onClick: "addVehicle" as const },
-  { label: "Create Manager", icon: User, onClick: "createManager" as const },
-  { label: "View Reports", icon: BarChart3, onClick: "viewReports" as const },
-  { label: "Timeline", icon: Clock, onClick: "timeline" as const },
+type QuickAction = { label: string; icon: typeof Plus; target: string };
+
+const actions: QuickAction[] = [
+  { label: "Create Shipment", icon: Plus, target: "createShipment" },
+  { label: "Drivers", icon: UserCheck, target: "drivers" },
+  { label: "Vehicles", icon: Navigation, target: "vehicles" },
+  { label: "Create Manager", icon: User, target: "createManager" },
+  { label: "Reports", icon: BarChart3, target: "reports" },
+  { label: "Timeline", icon: Clock, target: "timeline" },
 ];
 
 export function QuickActions({ onCreateShipment, onCreateManager }: QuickActionsProps) {
-  const handleClick = (action: string) => {
-    if (action === "createShipment") {
+  const navigateTo = (target: string) => {
+    if (target === "createShipment") {
       onCreateShipment();
-    } else if (action === "createManager") {
+    } else if (target === "createManager") {
       onCreateManager();
     } else {
-      alert(`${action.replace(/([A-Z])/g, " $1").trim()} portal mock.`);
+      window.location.replace(`#${target}`);
     }
   };
 
@@ -35,7 +37,7 @@ export function QuickActions({ onCreateShipment, onCreateManager }: QuickActions
           {actions.map((action) => (
             <button
               key={action.label}
-              onClick={() => handleClick(action.onClick)}
+              onClick={() => navigateTo(action.target)}
               className="p-5 border border-slate-150 rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-emerald-600 hover:shadow-lg hover:shadow-emerald-600/5 active:scale-98 transition-all group bg-white cursor-pointer"
             >
               <div className="w-10 h-10 rounded-xl bg-emerald-50 group-hover:bg-emerald-600 flex items-center justify-center text-emerald-600 group-hover:text-white transition-colors">
