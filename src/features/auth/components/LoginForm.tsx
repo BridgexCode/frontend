@@ -236,6 +236,12 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                         Register
                       </Link>
                     </p>
+                    <p className="text-xs font-semibold text-slate-400 mt-1.5">
+                      Are you a Manager?{" "}
+                      <Link href="/manager/login" className="text-emerald-600 hover:underline cursor-pointer">
+                        Login
+                      </Link>
+                    </p>
                   </div>
                 </form>
               </motion.div>
