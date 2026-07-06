@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import type { Driver } from "@/features/dashboard/services/mock-data";
-import { fetchDriversApi, createDriverApi } from "@/features/dashboard/services/drivers-api";
+import { fetchDriversApi, createDriverApi, deleteDriverApi } from "@/features/dashboard/services/drivers-api";
 import type { DriverFormData } from "./CreateDriverModal";
 import { DriversFilters } from "./DriversFilters";
 import { DriversTable } from "./DriversTable";
@@ -125,8 +125,13 @@ export function DriversPage() {
     );
   }, []);
 
-  const handleDelete = useCallback((driver: Driver) => {
-    setDrivers((prev) => prev.filter((d) => d.id !== driver.id));
+  const handleDelete = useCallback(async (driver: Driver) => {
+    try {
+      await deleteDriverApi(driver.id);
+      setDrivers((prev) => prev.filter((d) => d.id !== driver.id));
+    } catch (err) {
+      console.error("deleteDriver error:", err);
+    }
   }, []);
 
   return (
