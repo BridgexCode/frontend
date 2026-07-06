@@ -2,12 +2,32 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Package } from "lucide-react";
-import type { DashboardShipment } from "@/features/dashboard/services/mock-data";
-import { DASHBOARD_STATUS_BADGE } from "@/features/dashboard/services/mock-data";
+import type { ApiShipment } from "@/features/dashboard/services/shipments-api";
 
 interface ViewShipmentModalProps {
-  shipment: DashboardShipment | null;
+  shipment: ApiShipment | null;
   onClose: () => void;
+}
+
+function statusBadge(status: string): string {
+  switch (status) {
+    case "delivered": return "bg-green-50 text-green-600";
+    case "in_transit": return "bg-sky-50 text-sky-600";
+    case "cancelled": return "bg-red-50 text-red-600";
+    default: return "bg-amber-50 text-amber-600";
+  }
+}
+
+function statusLabel(status: string): string {
+  switch (status) {
+    case "delivered": return "DELIVERED";
+    case "in_transit": return "IN TRANSIT";
+    case "cancelled": return "CANCELLED";
+    case "created": return "CREATED";
+    case "assigned": return "ASSIGNED";
+    case "picked_up": return "PICKED UP";
+    default: return status.replace(/_/g, " ").toUpperCase();
+  }
 }
 
 export function ViewShipmentModal({ shipment, onClose }: ViewShipmentModalProps) {
@@ -39,25 +59,26 @@ export function ViewShipmentModal({ shipment, onClose }: ViewShipmentModalProps)
                 <Package className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900">{shipment.trackingId}</h3>
-                <p className="text-xs text-slate-400">{shipment.route}</p>
+                <h3 className="text-lg font-bold text-slate-900">{shipment.shipmentId}</h3>
+                <p className="text-xs text-slate-400">
+                  {shipment.pickupLocation} → {shipment.destination}
+                </p>
               </div>
             </div>
 
             <div className="space-y-3">
               {[
-                { label: "Status", value: shipment.status, badge: true },
-                { label: "Priority", value: shipment.priority, badge: true },
-                { label: "Driver", value: shipment.driver },
-                { label: "Customer", value: shipment.customer },
-                { label: "Origin", value: shipment.origin },
+                { label: "Status", value: statusLabel(shipment.statusLifecycle), badge: true },
+                { label: "Customer", value: shipment.customerName },
+                { label: "Pickup", value: shipment.pickupLocation },
                 { label: "Destination", value: shipment.destination },
-                { label: "Created", value: shipment.createdAt },
+                { label: "Expected Delivery", value: new Date(shipment.expectedDeliveryDate).toLocaleDateString() },
+                { label: "Created", value: new Date(shipment.createdAt).toLocaleDateString() },
               ].map((item) => (
                 <div key={item.label} className="flex items-center justify-between py-2 border-b border-slate-50">
                   <span className="text-xs font-semibold text-slate-400">{item.label}</span>
                   {item.badge ? (
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${DASHBOARD_STATUS_BADGE[item.value]}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${statusBadge(shipment.statusLifecycle)}`}>
                       {item.value}
                     </span>
                   ) : (

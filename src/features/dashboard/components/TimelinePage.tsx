@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, Package, UserCheck, CheckCircle, AlertTriangle } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
-import { MOCK_DASHBOARD_TIMELINE, MOCK_DASHBOARD_SHIPMENTS } from "@/features/dashboard/services/mock-data";
+import { fetchTimelineApi } from "@/features/dashboard/services/shipments-api";
+import type { ApiTimelineEvent } from "@/features/dashboard/services/shipments-api";
 import { TimelineFilter } from "./TimelineFilter";
 import { EmptyState } from "@/features/manager/components/EmptyState";
 
@@ -17,9 +18,14 @@ const typeColors: Record<string, string> = {
 };
 
 export function TimelinePage() {
+  const [events, setEvents] = useState<ApiTimelineEvent[]>([]);
   const [shipmentFilter, setShipmentFilter] = useState("ALL");
 
-  const events = MOCK_DASHBOARD_TIMELINE;
+  useEffect(() => {
+    fetchTimelineApi()
+      .then(setEvents)
+      .catch(() => {});
+  }, []);
 
   const filtered = useMemo(() => {
     if (shipmentFilter === "ALL") return events;
@@ -47,7 +53,6 @@ export function TimelinePage() {
             {filtered.map((event, i) => {
               const Icon = typeIcons[event.type] || Clock;
               const color = typeColors[event.type] || "bg-slate-500";
-              const shipment = MOCK_DASHBOARD_SHIPMENTS.find((s) => s.id === event.shipmentId);
               return (
                 <motion.div
                   key={event.id}
@@ -70,7 +75,7 @@ export function TimelinePage() {
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-[10px] text-slate-400">by {event.user}</span>
                       <span className="text-[10px] text-slate-300">·</span>
-                      <span className="text-[10px] font-mono text-slate-400">{shipment?.trackingId || event.trackingId}</span>
+                      <span className="text-[10px] font-mono text-slate-400">{event.trackingId}</span>
                     </div>
                   </div>
                 </motion.div>

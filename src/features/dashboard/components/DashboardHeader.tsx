@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, Calendar, ChevronDown, Bell, LogOut, User } from "lucide-react";
-import { useAuth } from "@/features/auth";
+import { Menu, Calendar, ChevronDown, Bell, LogOut } from "lucide-react";
+import { useAuthStore } from "@/features/auth";
 
 interface DashboardHeaderProps {
   onMenuClick: () => void;
@@ -16,7 +16,8 @@ export function DashboardHeader({
   notifications,
   onNotificationsClick,
 }: DashboardHeaderProps) {
-  const { user, logout } = useAuth();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const router = useRouter();
   const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
