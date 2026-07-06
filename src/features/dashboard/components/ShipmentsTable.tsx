@@ -2,15 +2,37 @@
 
 import { motion } from "framer-motion";
 import { Eye } from "lucide-react";
-import type { DashboardShipment } from "@/features/dashboard/services/mock-data";
-import { DASHBOARD_STATUS_BADGE } from "@/features/dashboard/services/mock-data";
+import type { ApiShipment } from "@/features/dashboard/services/shipments-api";
 import { TableSkeleton } from "@/features/manager/components/TableSkeleton";
 import { EmptyState } from "@/features/manager/components/EmptyState";
 
 interface ShipmentsTableProps {
-  shipments: DashboardShipment[];
+  shipments: ApiShipment[];
   loading: boolean;
-  onView: (shipment: DashboardShipment) => void;
+  onView: (shipment: ApiShipment) => void;
+}
+
+function statusBadge(status: string): string {
+  switch (status) {
+    case "delivered": return "bg-green-50 text-green-600";
+    case "in_transit": return "bg-sky-50 text-sky-600";
+    case "cancelled": return "bg-red-50 text-red-600";
+    case "created":
+    case "assigned": return "bg-amber-50 text-amber-600";
+    default: return "bg-slate-100 text-slate-600";
+  }
+}
+
+function statusLabel(status: string): string {
+  switch (status) {
+    case "delivered": return "DELIVERED";
+    case "in_transit": return "IN TRANSIT";
+    case "cancelled": return "CANCELLED";
+    case "created": return "CREATED";
+    case "assigned": return "ASSIGNED";
+    case "picked_up": return "PICKED UP";
+    default: return status.toUpperCase();
+  }
 }
 
 export function ShipmentsTable({ shipments, loading, onView }: ShipmentsTableProps) {
@@ -25,38 +47,32 @@ export function ShipmentsTable({ shipments, loading, onView }: ShipmentsTablePro
             <tr className="border-b border-slate-100 bg-slate-50/50">
               <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tracking ID</th>
               <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Route</th>
-              <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Driver</th>
-              <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</th>
               <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Customer</th>
-              <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Priority</th>
+              <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</th>
+              <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Created</th>
               <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody>
             {shipments.map((shipment) => (
               <motion.tr
-                key={shipment.id}
+                key={shipment._id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
               >
-                <td className="px-4 py-3 font-semibold text-slate-800 font-mono text-xs">{shipment.trackingId}</td>
-                <td className="px-4 py-3 text-slate-700">{shipment.route}</td>
+                <td className="px-4 py-3 font-semibold text-slate-800 font-mono text-xs">{shipment.shipmentId}</td>
+                <td className="px-4 py-3 text-slate-700">
+                  {shipment.pickupLocation} → {shipment.destination}
+                </td>
+                <td className="px-4 py-3 text-slate-500">{shipment.customerName}</td>
                 <td className="px-4 py-3">
-                  <span className={shipment.driver === "Unassigned" ? "text-slate-400 italic" : "text-slate-700"}>
-                    {shipment.driver}
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${statusBadge(shipment.statusLifecycle)}`}>
+                    {statusLabel(shipment.statusLifecycle)}
                   </span>
                 </td>
-                <td className="px-4 py-3">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${DASHBOARD_STATUS_BADGE[shipment.status]}`}>
-                    {shipment.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-slate-500">{shipment.customer}</td>
-                <td className="px-4 py-3">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${DASHBOARD_STATUS_BADGE[shipment.priority]}`}>
-                    {shipment.priority}
-                  </span>
+                <td className="px-4 py-3 text-slate-500 text-xs">
+                  {new Date(shipment.createdAt).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-3">
                   <button onClick={() => onView(shipment)} className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all cursor-pointer" title="View">

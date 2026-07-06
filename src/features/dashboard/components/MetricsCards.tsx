@@ -16,6 +16,10 @@ interface MetricsCardsProps {
   delivered: number;
   inTransit: number;
   delayed: number;
+  totalDrivers?: number;
+  activeDrivers?: number;
+  totalVehicles?: number;
+  activeVehicles?: number;
 }
 
 export function MetricsCards({
@@ -23,6 +27,10 @@ export function MetricsCards({
   delivered,
   inTransit,
   delayed,
+  totalDrivers = 0,
+  activeDrivers = 0,
+  totalVehicles = 0,
+  activeVehicles = 0,
 }: MetricsCardsProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -63,16 +71,16 @@ export function MetricsCards({
         iconBg="bg-purple-50"
         iconColor="text-purple-500"
         label="Total Drivers"
-        value={15}
-        badge="Active: 12"
+        value={totalDrivers}
+        badge={`Active: ${activeDrivers}`}
       />
       <MetricCard
         icon={<Navigation className="w-4.5 h-4.5" />}
         iconBg="bg-teal-50"
         iconColor="text-teal-500"
         label="Total Vehicles"
-        value={10}
-        badge="Active: 8"
+        value={totalVehicles}
+        badge={`Active: ${activeVehicles}`}
       />
     </div>
   );

@@ -9,11 +9,11 @@ import {
   Building2, User, Mail, Phone, Lock, Globe, Clock,
   ShieldCheck, Eye, EyeOff, Network, AlertCircle,
 } from "lucide-react";
-import { useAuth } from "../hooks/use-auth";
+import { useAuthStore } from "../store/auth-store";
 import { COUNTRIES, TIMEZONES } from "../constants";
 
 export function RegisterForm() {
-  const { register } = useAuth();
+  const register = useAuthStore((s) => s.register);
   const router = useRouter();
 
   const [orgName, setOrgName] = useState("");

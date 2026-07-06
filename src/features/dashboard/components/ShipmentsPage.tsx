@@ -1,39 +1,74 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Plus } from "lucide-react";
-import type { DashboardShipment } from "@/features/dashboard/services/mock-data";
-import { MOCK_DASHBOARD_SHIPMENTS } from "@/features/dashboard/services/mock-data";
+import type { ApiShipment } from "@/features/dashboard/services/shipments-api";
+import { fetchShipmentsApi, createShipmentApi } from "@/features/dashboard/services/shipments-api";
 import { ShipmentsFilters } from "./ShipmentsFilters";
 import { ShipmentsTable } from "./ShipmentsTable";
 import { ViewShipmentModal } from "./ViewShipmentModal";
 import { CreateShipmentModal } from "./CreateShipmentModal";
 
 export function ShipmentsPage() {
-  const [shipments, setShipments] = useState<DashboardShipment[]>(MOCK_DASHBOARD_SHIPMENTS);
+  const [shipments, setShipments] = useState<ApiShipment[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [loading, setLoading] = useState(false);
-  const [selectedShipment, setSelectedShipment] = useState<DashboardShipment | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedShipment, setSelectedShipment] = useState<ApiShipment | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [form, setForm] = useState<{ origin: string; destination: string; driver: string; status: "DELIVERED" | "IN TRANSIT" | "DELAYED" }>({ origin: "", destination: "", driver: "", status: "IN TRANSIT" });
+  const [form, setForm] = useState<{
+    pickupLocation: string;
+    destination: string;
+    customerName: string;
+    expectedDeliveryDate: string;
+  }>({ pickupLocation: "", destination: "", customerName: "", expectedDeliveryDate: "" });
+
+  useEffect(() => {
+    let mounted = true;
+    fetchShipmentsApi({ page: 1, limit: 50 })
+      .then((res) => { if (mounted) setShipments(res.data); })
+      .catch(() => {})
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, []);
 
   const filtered = useMemo(() => {
     return shipments.filter((s) => {
+      const route = `${s.pickupLocation} → ${s.destination}`;
       const matchesSearch =
-        s.trackingId.toLowerCase().includes(search.toLowerCase()) ||
-        s.route.toLowerCase().includes(search.toLowerCase()) ||
-        s.driver.toLowerCase().includes(search.toLowerCase()) ||
-        s.customer.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = statusFilter === "ALL" || s.status === statusFilter;
+        s.shipmentId.toLowerCase().includes(search.toLowerCase()) ||
+        route.toLowerCase().includes(search.toLowerCase()) ||
+        s.customerName.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === "ALL" || s.statusLifecycle === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [shipments, search, statusFilter]);
 
   const handleRefresh = () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 800);
+    fetchShipmentsApi({ page: 1, limit: 50 })
+      .then((res) => setShipments(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   };
+
+  const handleCreate = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.pickupLocation || !form.destination || !form.customerName || !form.expectedDeliveryDate) return;
+    try {
+      const newShipment = await createShipmentApi({
+        pickupLocation: form.pickupLocation,
+        destination: form.destination,
+        customerName: form.customerName,
+        expectedDeliveryDate: form.expectedDeliveryDate,
+      });
+      setShipments((prev) => [newShipment, ...prev]);
+      setForm({ pickupLocation: "", destination: "", customerName: "", expectedDeliveryDate: "" });
+      setIsCreateModalOpen(false);
+    } catch {
+      // handle error
+    }
+  }, [form]);
 
   return (
     <div className="space-y-6 py-6 md:py-10">
@@ -67,24 +102,7 @@ export function ShipmentsPage() {
         onClose={() => setIsCreateModalOpen(false)}
         form={form}
         onFormChange={(f) => setForm(f)}
-        onSubmit={(e) => {
-          e.preventDefault();
-          const newShipment: DashboardShipment = {
-            id: `S${String(shipments.length + 1).padStart(3, "0")}`,
-            trackingId: "NAX-" + Date.now().toString(36).toUpperCase(),
-            origin: form.origin,
-            destination: form.destination,
-            route: `${form.origin} → ${form.destination}`,
-            driver: form.driver,
-            status: form.status,
-            priority: "Medium",
-            customer: "—",
-            createdAt: new Date().toISOString().split("T")[0],
-          };
-          setShipments([newShipment, ...shipments]);
-          setForm({ origin: "", destination: "", driver: "", status: "IN TRANSIT" });
-          setIsCreateModalOpen(false);
-        }}
+        onSubmit={handleCreate}
       />
     </div>
   );

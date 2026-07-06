@@ -1,12 +1,25 @@
 "use client";
 
 import { Search } from "lucide-react";
-import type { ShipmentRow } from "../services/mock-data";
+import type { ApiShipment } from "../services/shipments-api";
 
 interface RecentShipmentsTableProps {
-  shipments: ShipmentRow[];
+  shipments: ApiShipment[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
+}
+
+function mapStatus(status: string): { label: string; color: string } {
+  switch (status) {
+    case "delivered":
+      return { label: "DELIVERED", color: "bg-green-50 text-green-600" };
+    case "in_transit":
+      return { label: "IN TRANSIT", color: "bg-sky-50 text-sky-600" };
+    case "cancelled":
+      return { label: "DELAYED", color: "bg-red-50 text-red-600" };
+    default:
+      return { label: status.replace(/_/g, " ").toUpperCase(), color: "bg-amber-50 text-amber-600" };
+  }
 }
 
 export function RecentShipmentsTable({
@@ -46,31 +59,28 @@ export function RecentShipmentsTable({
               <tr className="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 <th className="pb-3 pr-4">Shipment ID</th>
                 <th className="pb-3 pr-4">Route</th>
-                <th className="pb-3 pr-4">Driver</th>
+                <th className="pb-3 pr-4">Customer</th>
                 <th className="pb-3">Status</th>
               </tr>
             </thead>
             <tbody className="text-xs font-semibold text-slate-700 divide-y divide-slate-50">
-              {shipments.map((shipment) => (
-                <tr key={shipment.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="py-3.5 text-emerald-600 font-bold pr-4">{shipment.id}</td>
-                  <td className="py-3.5 pr-4 text-slate-800">{shipment.route}</td>
-                  <td className="py-3.5 pr-4 text-slate-500">{shipment.driver}</td>
-                  <td className="py-3.5">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide ${
-                        shipment.status === "DELIVERED"
-                          ? "bg-green-50 text-green-600"
-                          : shipment.status === "DELAYED"
-                            ? "bg-red-50 text-red-600"
-                            : "bg-sky-50 text-sky-600"
-                      }`}
-                    >
-                      {shipment.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {shipments.map((shipment) => {
+                const { label, color } = mapStatus(shipment.statusLifecycle);
+                return (
+                  <tr key={shipment._id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-3.5 text-emerald-600 font-bold pr-4">{shipment.shipmentId}</td>
+                    <td className="py-3.5 pr-4 text-slate-800">
+                      {shipment.pickupLocation} → {shipment.destination}
+                    </td>
+                    <td className="py-3.5 pr-4 text-slate-500">{shipment.customerName}</td>
+                    <td className="py-3.5">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide ${color}`}>
+                        {label}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
               {shipments.length === 0 && (
                 <tr>
                   <td colSpan={4} className="py-8 text-center text-slate-400 font-medium">

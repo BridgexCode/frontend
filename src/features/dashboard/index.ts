@@ -1,5 +1,5 @@
 export type { DashboardCardProps, OperationalMetrics, StatusTimelineFeed } from "./types";
-export { useDashboard } from "./hooks/use-dashboard";
+export { useDashboardStore } from "./store/dashboard-store";
 export { DashboardSidebar } from "./components/DashboardSidebar";
 export { DashboardHeader } from "./components/DashboardHeader";
 export { MetricsCards } from "./components/MetricsCards";
@@ -10,8 +10,6 @@ export { ActivitiesFeed } from "./components/ActivitiesFeed";
 export { DriversStatusDonut } from "./components/DriversStatusDonut";
 export { QuickActions } from "./components/QuickActions";
 export { ShipmentsMap } from "./components/ShipmentsMap";
-export { CreateShipmentModal } from "./components/CreateShipmentModal";
-export { AddManagerModal } from "./components/AddManagerModal";
 export { ManagersPage } from "./components/ManagersPage";
 export { ManagersFilters } from "./components/ManagersFilters";
 export { ManagersTable } from "./components/ManagersTable";

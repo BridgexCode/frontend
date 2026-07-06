@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
-import { AuthProvider } from "@/features/auth/hooks/use-auth";
+import { AuthInit } from "@/features/auth/components/AuthInit";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -60,7 +60,7 @@ export default function RootLayout({
       lang="en"
       className={`${plusJakartaSans.variable} ${inter.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><AuthProvider>{children}</AuthProvider></body>
+      <body className="min-h-full flex flex-col"><AuthInit>{children}</AuthInit></body>
     </html>
   );
 }

@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PlusCircle, X } from "lucide-react";
 
 interface NewShipmentForm {
-  origin: string;
+  pickupLocation: string;
   destination: string;
-  driver: string;
-  status: "DELIVERED" | "IN TRANSIT" | "DELAYED";
+  customerName: string;
+  expectedDeliveryDate: string;
 }
 
 interface CreateShipmentModalProps {
@@ -63,19 +63,19 @@ export function CreateShipmentModal({
 
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Origin Name *</label>
+                <label className="text-xs font-bold text-slate-700">Pickup Location *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Kochi"
-                  value={form.origin}
-                  onChange={(e) => onFormChange({ ...form, origin: e.target.value })}
+                  value={form.pickupLocation}
+                  onChange={(e) => onFormChange({ ...form, pickupLocation: e.target.value })}
                   className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Destination Name *</label>
+                <label className="text-xs font-bold text-slate-700">Destination *</label>
                 <input
                   type="text"
                   required
@@ -87,33 +87,26 @@ export function CreateShipmentModal({
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Driver Full Name *</label>
+                <label className="text-xs font-bold text-slate-700">Customer Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Alex Johnson"
-                  value={form.driver}
-                  onChange={(e) => onFormChange({ ...form, driver: e.target.value })}
+                  placeholder="e.g. ABC Corp"
+                  value={form.customerName}
+                  onChange={(e) => onFormChange({ ...form, customerName: e.target.value })}
                   className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Initial Status *</label>
-                <select
-                  value={form.status}
-                  onChange={(e) =>
-                    onFormChange({
-                      ...form,
-                      status: e.target.value as NewShipmentForm["status"],
-                    })
-                  }
-                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 bg-white font-medium cursor-pointer"
-                >
-                  <option value="IN TRANSIT">IN TRANSIT</option>
-                  <option value="DELIVERED">DELIVERED</option>
-                  <option value="DELAYED">DELAYED</option>
-                </select>
+                <label className="text-xs font-bold text-slate-700">Expected Delivery Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={form.expectedDeliveryDate}
+                  onChange={(e) => onFormChange({ ...form, expectedDeliveryDate: e.target.value })}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium"
+                />
               </div>
 
               <div className="flex gap-3 pt-2">

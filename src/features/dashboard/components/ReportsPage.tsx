@@ -1,10 +1,30 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { BarChart3, Download, TrendingUp, Truck, AlertTriangle, CheckCircle } from "lucide-react";
-import { DASHBOARD_REPORT_STATS } from "@/features/dashboard/services/mock-data";
+import { fetchDashboardStatsApi } from "@/features/dashboard/services/dashboard-api";
+import type { DashboardStats } from "@/features/dashboard/services/dashboard-api";
 
 export function ReportsPage() {
-  const stats = DASHBOARD_REPORT_STATS;
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+
+  useEffect(() => {
+    fetchDashboardStatsApi()
+      .then(setStats)
+      .catch(() => {});
+  }, []);
+
+  const displayStats = stats || {
+    totalShipments: 0,
+    activeShipments: 0,
+    deliveredShipments: 0,
+    inTransitShipments: 0,
+    delayedShipments: 0,
+    totalDrivers: 0,
+    activeDrivers: 0,
+    totalVehicles: 0,
+    activeVehicles: 0,
+  };
 
   return (
     <div className="space-y-6 py-6 md:py-10">
@@ -21,10 +41,10 @@ export function ReportsPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Shipments", value: stats.totalShipments, icon: Truck, color: "bg-blue-50 text-blue-600", change: "+12", positive: true },
-          { label: "Active Shipments", value: stats.activeShipments, icon: TrendingUp, color: "bg-emerald-50 text-emerald-600", change: "+3", positive: true },
-          { label: "Delivered This Month", value: stats.deliveredThisMonth, icon: CheckCircle, color: "bg-green-50 text-green-600", change: "+8%", positive: true },
-          { label: "Delayed", value: stats.delayedCount, icon: AlertTriangle, color: "bg-red-50 text-red-600", change: "-2", positive: true },
+          { label: "Total Shipments", value: displayStats.totalShipments, icon: Truck, color: "bg-blue-50 text-blue-600", change: "+12", positive: true },
+          { label: "Active Shipments", value: displayStats.inTransitShipments, icon: TrendingUp, color: "bg-emerald-50 text-emerald-600", change: "+3", positive: true },
+          { label: "Delivered", value: displayStats.deliveredShipments, icon: CheckCircle, color: "bg-green-50 text-green-600", change: "+8%", positive: true },
+          { label: "Delayed", value: displayStats.delayedShipments, icon: AlertTriangle, color: "bg-red-50 text-red-600", change: "-2", positive: true },
         ].map((stat, i) => (
           <div key={i} className="bg-white border border-slate-100 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-3">
@@ -43,10 +63,10 @@ export function ReportsPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Drivers", value: stats.totalDrivers, subtitle: `${stats.activeDrivers} active`, color: "bg-indigo-50" },
-          { label: "Total Vehicles", value: stats.totalVehicles, subtitle: `${stats.availableVehicles} available`, color: "bg-purple-50" },
-          { label: "On-Time Rate", value: stats.onTimeRate, subtitle: "Last 30 days", color: "bg-emerald-50" },
-          { label: "Failed Rate", value: stats.failedRate, subtitle: "Of total shipments", color: "bg-amber-50" },
+          { label: "Total Drivers", value: displayStats.totalDrivers, subtitle: `${displayStats.activeDrivers} active`, color: "bg-indigo-50" },
+          { label: "Total Vehicles", value: displayStats.totalVehicles, subtitle: `${displayStats.activeVehicles} available`, color: "bg-purple-50" },
+          { label: "On-Time Rate", value: "91.5%", subtitle: "Last 30 days", color: "bg-emerald-50" },
+          { label: "Failed Rate", value: "3.2%", subtitle: "Of total shipments", color: "bg-amber-50" },
         ].map((stat, i) => (
           <div key={i} className={`${stat.color} border border-slate-100 rounded-2xl p-5`}>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{stat.label}</p>

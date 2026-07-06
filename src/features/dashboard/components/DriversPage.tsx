@@ -1,28 +1,61 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import type { Driver } from "@/features/dashboard/services/mock-data";
-import { MOCK_DRIVERS } from "@/features/dashboard/services/mock-data";
+import { fetchDriversApi, createDriverApi } from "@/features/dashboard/services/drivers-api";
 import type { DriverFormData } from "./CreateDriverModal";
 import { DriversFilters } from "./DriversFilters";
 import { DriversTable } from "./DriversTable";
 import { CreateDriverModal } from "./CreateDriverModal";
 import { ViewDriverModal } from "./ViewDriverModal";
 
+function toUiStatus(status: string): Driver["status"] {
+  switch (status) {
+    case "available":
+    case "on_trip":
+      return "ACTIVE";
+    default:
+      return "INACTIVE";
+  }
+}
+
 export function DriversPage() {
-  const [drivers, setDrivers] = useState<Driver[]>(MOCK_DRIVERS);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchDriversApi()
+      .then((data) => {
+        if (!mounted) return;
+        const mapped: Driver[] = data.map((d) => ({
+          id: d._id,
+          name: d.name,
+          email: "",
+          phone: d.phone,
+          licenseNumber: d.licenseNumber,
+          assignedVehicle: d.vehicleNumber,
+          status: toUiStatus(d.status),
+          assignedShipments: 0,
+          rating: 0,
+          createdAt: new Date(d.createdAt).toISOString().split("T")[0],
+        }));
+        setDrivers(mapped);
+      })
+      .catch(() => {})
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, []);
 
   const filtered = useMemo(() => {
     return drivers.filter((d) => {
       const matchesSearch =
         d.name.toLowerCase().includes(search.toLowerCase()) ||
-        d.email.toLowerCase().includes(search.toLowerCase()) ||
         d.phone.includes(search) ||
         d.licenseNumber.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === "ALL" || d.status === statusFilter;
@@ -32,24 +65,51 @@ export function DriversPage() {
 
   const handleRefresh = () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 800);
+    fetchDriversApi()
+      .then((data) => {
+        const mapped: Driver[] = data.map((d) => ({
+          id: d._id,
+          name: d.name,
+          email: "",
+          phone: d.phone,
+          licenseNumber: d.licenseNumber,
+          assignedVehicle: d.vehicleNumber,
+          status: toUiStatus(d.status),
+          assignedShipments: 0,
+          rating: 0,
+          createdAt: new Date(d.createdAt).toISOString().split("T")[0],
+        }));
+        setDrivers(mapped);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   };
 
   const handleCreateDriver = useCallback(async (data: DriverFormData) => {
-    const newDriver: Driver = {
-      id: `D${String(drivers.length + 1).padStart(3, "0")}`,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      licenseNumber: data.licenseNumber,
-      assignedVehicle: "Unassigned",
-      status: "ACTIVE",
-      assignedShipments: 0,
-      rating: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-    };
-    setDrivers((prev) => [newDriver, ...prev]);
-  }, [drivers.length]);
+    try {
+      const apiDriver = await createDriverApi({
+        name: data.name,
+        phone: data.phone,
+        licenseNumber: data.licenseNumber,
+        vehicleNumber: "",
+      });
+      const newDriver: Driver = {
+        id: apiDriver._id,
+        name: apiDriver.name,
+        email: "",
+        phone: apiDriver.phone,
+        licenseNumber: apiDriver.licenseNumber,
+        assignedVehicle: apiDriver.vehicleNumber,
+        status: toUiStatus(apiDriver.status),
+        assignedShipments: 0,
+        rating: 0,
+        createdAt: new Date().toISOString().split("T")[0],
+      };
+      setDrivers((prev) => [newDriver, ...prev]);
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const handleEdit = useCallback(async (data: DriverFormData) => {
     if (!editingDriver) return;
