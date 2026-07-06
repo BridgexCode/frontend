@@ -104,7 +104,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     try {
       const stats = await fetchDashboardStatsApi();
       set({ stats, statsLoading: false });
-    } catch {
+    } catch (err) {
+      console.error("fetchStats error:", err);
       set({ statsLoading: false });
     }
   },
@@ -114,7 +115,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     try {
       const result = await fetchShipmentsApi({ page: 1, limit: 10 });
       set({ recentShipments: result.data, shipmentsLoading: false });
-    } catch {
+    } catch (err) {
+      console.error("fetchRecentShipments error:", err);
       set({ shipmentsLoading: false });
     }
   },
@@ -125,7 +127,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       const events = await fetchTimelineApi();
       const activities = events.map(mapTimelineToActivity);
       set({ activities, timelineLoading: false });
-    } catch {
+    } catch (err) {
+      console.error("fetchTimeline error:", err);
       set({ timelineLoading: false });
     }
   },

@@ -1,3 +1,5 @@
+"use client";
+
 import type { ActivityItem } from "../services/mock-data";
 
 interface ActivitiesFeedProps {

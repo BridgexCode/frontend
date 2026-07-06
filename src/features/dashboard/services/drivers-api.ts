@@ -30,3 +30,7 @@ export async function createDriverApi(
   const res = await api.post("/api/drivers/create-driver", payload);
   return res.data.data;
 }
+
+export async function deleteDriverApi(driverId: string): Promise<void> {
+  await api.delete(`/api/drivers/delete-driver/${driverId}`);
+}
