@@ -4,9 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Network, Eye, EyeOff, ArrowRight, ShieldAlert } from "lucide-react";
+import { useAuthStore } from "@/features/auth";
 
 export function AdminLoginForm() {
   const router = useRouter();
+  const login = useAuthStore((s) => s.login);
+  const logout = useAuthStore((s) => s.logout);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -23,12 +26,19 @@ export function AdminLoginForm() {
     }
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-
-    if (email === "admin@naxivo.com" && password === "admin123") {
-      router.push("/admin/dashboard");
-    } else {
-      setError("Invalid credentials. Try admin@naxivo.com / admin123");
+    try {
+      await login(email, password);
+      // Wait for store state to populate
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser?.role === "SUPER_ADMIN") {
+        router.push("/admin/dashboard");
+      } else {
+        await logout();
+        setError("Access denied: Only system administrators can log in here.");
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setError(err.message || "Invalid credentials");
       setLoading(false);
     }
   };

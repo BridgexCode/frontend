@@ -1,19 +1,89 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Search, RotateCw, Filter, ChevronDown, Plus, Eye, ToggleLeft, ToggleRight, Trash2, Building2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Organization } from "../types";
-import { MOCK_ORGANIZATIONS, STATUS_BADGE } from "../services/mock-data";
+import { STATUS_BADGE } from "../services/mock-data";
 import { TableSkeleton } from "@/features/manager/components/TableSkeleton";
+import {
+  fetchOrganizationsApi,
+  updateOrganizationStatusApi,
+  deleteOrganizationApi,
+  type OrganizationResponse
+} from "../services/super-admin-api";
+
+function mapBackendOrgToFrontend(org: OrganizationResponse): Organization {
+  return {
+    id: org._id,
+    name: org.name,
+    email: org.metadata?.email || `admin@${org.slug || org._id}.com`,
+    phone: org.metadata?.phone || "N/A",
+    plan: (org.metadata?.plan?.toUpperCase() as any) || "FREE",
+    status: org.status === "active" ? "ACTIVE" : "SUSPENDED",
+    totalUsers: org.metadata?.totalUsers || 0,
+    totalShipments: org.metadata?.totalShipments || 0,
+    createdAt: org.createdAt ? new Date(org.createdAt).toISOString().split("T")[0] : "N/A",
+  };
+}
 
 export function OrganizationsPage() {
-  const [orgs, setOrgs] = useState<Organization[]>(MOCK_ORGANIZATIONS);
+  const [orgs, setOrgs] = useState<Organization[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
+
+  const loadOrganizations = useCallback(() => {
+    setLoading(true);
+    fetchOrganizationsApi()
+      .then((data) => {
+        setOrgs(data.map(mapBackendOrgToFrontend));
+        setError(null);
+      })
+      .catch(() => {
+        setError("Failed to fetch organizations");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    loadOrganizations();
+  }, [loadOrganizations]);
+
+  const handleToggleActive = async (org: Organization) => {
+    const newStatus = org.status === "ACTIVE" ? "inactive" : "active";
+    try {
+      setLoading(true);
+      const updated = await updateOrganizationStatusApi(org.id, newStatus);
+      setOrgs((prev) =>
+        prev.map((o) => (o.id === org.id ? mapBackendOrgToFrontend(updated) : o))
+      );
+    } catch {
+      alert("Failed to update organization status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (org: Organization) => {
+    if (!confirm(`Are you sure you want to delete organization ${org.name}?`)) {
+      return;
+    }
+    try {
+      setLoading(true);
+      await deleteOrganizationApi(org.id);
+      setOrgs((prev) => prev.filter((o) => o.id !== org.id));
+    } catch {
+      alert("Failed to delete organization");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = useMemo(() => {
     return orgs.filter((o) => {
@@ -26,8 +96,7 @@ export function OrganizationsPage() {
   }, [orgs, search, statusFilter]);
 
   const handleRefresh = () => {
-    setLoading(true);
-    setTimeout(() => setLoading(false), 800);
+    loadOrganizations();
   };
 
   return (
@@ -89,9 +158,21 @@ export function OrganizationsPage() {
         </AnimatePresence>
       </div>
 
+      {error && (
+        <div className="bg-red-50 text-red-600 p-4 rounded-xl text-center border border-red-100 font-semibold mb-4">
+          {error}
+        </div>
+      )}
+
       {loading ? (
         <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden">
           <TableSkeleton rows={6} columns={7} />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="bg-white border border-slate-100 rounded-2xl p-12 text-center">
+          <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h3 className="font-bold text-slate-800">No organizations found</h3>
+          <p className="text-sm text-slate-400 mt-1">Try resetting filters or searching for something else.</p>
         </div>
       ) : (
         <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden">
@@ -135,10 +216,10 @@ export function OrganizationsPage() {
                         <button onClick={() => setSelectedOrg(org)} className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all cursor-pointer" title="View">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all cursor-pointer" title="Toggle Active">
+                        <button onClick={() => handleToggleActive(org)} className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all cursor-pointer" title="Toggle Active">
                           {org.status === "ACTIVE" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
                         </button>
-                        <button className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer" title="Delete">
+                        <button onClick={() => handleDelete(org)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer" title="Delete">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

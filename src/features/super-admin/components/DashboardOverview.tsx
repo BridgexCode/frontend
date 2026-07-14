@@ -1,11 +1,70 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Building2, Activity, TrendingUp, Clock } from "lucide-react";
 import { MOCK_SYSTEM_STATS } from "../services/mock-data";
+import { fetchDashboardStatsApi } from "../services/super-admin-api";
 
 export function DashboardOverview() {
-  const stats = MOCK_SYSTEM_STATS;
+  const [backendStats, setBackendStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    fetchDashboardStatsApi()
+      .then((data) => {
+        if (mounted) {
+          setBackendStats(data);
+          setError(null);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setError("Failed to load dashboard metrics");
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <div className="h-8 w-64 bg-slate-200 animate-pulse rounded-xl mb-2" />
+          <div className="h-4 w-48 bg-slate-200 animate-pulse rounded-xl" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="h-32 bg-slate-200 animate-pulse rounded-2xl animate-pulse" />
+          <div className="h-32 bg-slate-200 animate-pulse rounded-2xl animate-pulse" />
+        </div>
+        <div className="grid lg:grid-cols-2 gap-6">
+          <div className="h-48 bg-slate-200 animate-pulse rounded-2xl animate-pulse" />
+          <div className="h-48 bg-slate-200 animate-pulse rounded-2xl animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center bg-red-50 border border-red-100 rounded-2xl max-w-md mx-auto my-12">
+        <p className="text-red-600 font-semibold">{error}</p>
+      </div>
+    );
+  }
+
+  const stats = {
+    ...MOCK_SYSTEM_STATS,
+    totalOrganizations: backendStats?.totalOrganizations ?? 0,
+  };
 
   return (
     <div className="space-y-8">

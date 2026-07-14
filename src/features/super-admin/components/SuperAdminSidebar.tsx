@@ -6,12 +6,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Network, Menu, X, LogOut } from "lucide-react";
 import { SIDEBAR_ITEMS } from "../constants";
+import { useAuthStore } from "@/features/auth";
 
 export function SuperAdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const logout = useAuthStore((s) => s.logout);
+  const user = useAuthStore((s) => s.user);
 
   const isActive = (href: string) => pathname === href;
 
@@ -49,12 +52,12 @@ export function SuperAdminSidebar() {
 
       <div className="p-3 border-t border-slate-100">
         <div className="flex items-center gap-3 px-3 py-2.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
-          <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 text-xs font-bold">
-            SA
+          <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 text-xs font-bold uppercase">
+            {user?.name ? user.name.slice(0, 2) : "SA"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900 truncate">System Admin</p>
-            <p className="text-[10px] text-slate-400 truncate">admin@naxivo.com</p>
+            <p className="text-sm font-bold text-slate-900 truncate">{user?.name || "System Admin"}</p>
+            <p className="text-[10px] text-slate-400 truncate">{user?.email || "admin@naxivo.com"}</p>
           </div>
           <LogOut onClick={() => setShowLogoutModal(true)} className="w-4 h-4 shrink-0 text-slate-300 hover:text-red-500 transition-colors cursor-pointer" />
         </div>
@@ -131,7 +134,10 @@ export function SuperAdminSidebar() {
                 <button onClick={() => setShowLogoutModal(false)} className="flex-1 border border-slate-200 hover:bg-slate-50 font-bold text-sm py-3 rounded-xl transition-all cursor-pointer">
                   Cancel
                 </button>
-                <button onClick={() => router.push("/admin/login")} className="flex-1 bg-red-500 text-white hover:bg-red-600 font-bold text-sm py-3 rounded-xl transition-all shadow-md shadow-red-200 cursor-pointer">
+                <button onClick={async () => {
+                  await logout();
+                  router.push("/admin/login");
+                }} className="flex-1 bg-red-500 text-white hover:bg-red-600 font-bold text-sm py-3 rounded-xl transition-all shadow-md shadow-red-200 cursor-pointer">
                   Logout
                 </button>
               </div>
