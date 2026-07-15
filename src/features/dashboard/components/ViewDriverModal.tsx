@@ -29,9 +29,11 @@ export function ViewDriverModal({ driver, onClose }: ViewDriverModalProps) {
 
             <div className="space-y-3">
               {[
+                { label: "Driver ID", value: driver.driverId || "—" },
                 { label: "Phone", value: driver.phone },
                 { label: "License", value: driver.licenseNumber },
                 { label: "Vehicle", value: driver.assignedVehicle },
+                { label: "Telegram", value: driver.telegramId ? "✅ Linked" : "—" },
                 { label: "Status", value: driver.status === "ON_LEAVE" ? "On Leave" : driver.status, badge: true },
                 { label: "Assigned Shipments", value: String(driver.assignedShipments) },
                 { label: "Rating", value: `${driver.rating} / 5.0`, star: true },

@@ -1,19 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Network, Menu, X, LogOut } from "lucide-react";
 import { SIDEBAR_ITEMS } from "../constants";
+import { logoutApi, getMeApi } from "../services/admin-auth-api";
 
 export function SuperAdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+
+  useEffect(() => {
+    getMeApi().then(setUser).catch(() => {});
+  }, []);
 
   const isActive = (href: string) => pathname === href;
+
+  const handleLogout = async () => {
+    await logoutApi();
+    router.push("/admin/login");
+  };
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -53,8 +64,8 @@ export function SuperAdminSidebar() {
             SA
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900 truncate">System Admin</p>
-            <p className="text-[10px] text-slate-400 truncate">admin@naxivo.com</p>
+            <p className="text-sm font-bold text-slate-900 truncate">{user?.name || "System Admin"}</p>
+            <p className="text-[10px] text-slate-400 truncate">{user?.email || "admin@naxivo.com"}</p>
           </div>
           <LogOut onClick={() => setShowLogoutModal(true)} className="w-4 h-4 shrink-0 text-slate-300 hover:text-red-500 transition-colors cursor-pointer" />
         </div>
@@ -131,7 +142,7 @@ export function SuperAdminSidebar() {
                 <button onClick={() => setShowLogoutModal(false)} className="flex-1 border border-slate-200 hover:bg-slate-50 font-bold text-sm py-3 rounded-xl transition-all cursor-pointer">
                   Cancel
                 </button>
-                <button onClick={() => router.push("/admin/login")} className="flex-1 bg-red-500 text-white hover:bg-red-600 font-bold text-sm py-3 rounded-xl transition-all shadow-md shadow-red-200 cursor-pointer">
+                <button onClick={handleLogout} className="flex-1 bg-red-500 text-white hover:bg-red-600 font-bold text-sm py-3 rounded-xl transition-all shadow-md shadow-red-200 cursor-pointer">
                   Logout
                 </button>
               </div>

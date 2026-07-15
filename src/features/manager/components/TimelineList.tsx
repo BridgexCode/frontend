@@ -3,8 +3,18 @@
 import { motion } from "framer-motion";
 import type { ComponentType, SVGProps } from "react";
 import { Clock, Package, UserCheck, CheckCircle, AlertTriangle } from "lucide-react";
-import { MOCK_SHIPMENTS, type TimelineEvent } from "@/features/manager/services/mock-data";
+import { TableSkeleton } from "./TableSkeleton";
 import { EmptyState } from "./EmptyState";
+
+interface UIEvent {
+  id: string;
+  type: "status" | "assignment" | "delivery" | "creation" | "failed";
+  title: string;
+  description: string;
+  shipmentId: string;
+  timestamp: string;
+  user: string;
+}
 
 const typeIcons: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
   creation: Package, assignment: UserCheck, status: Clock, delivery: CheckCircle, failed: AlertTriangle,
@@ -15,10 +25,12 @@ const typeColors: Record<string, string> = {
 };
 
 interface TimelineListProps {
-  events: TimelineEvent[];
+  events: UIEvent[];
+  loading?: boolean;
 }
 
-export function TimelineList({ events }: TimelineListProps) {
+export function TimelineList({ events, loading }: TimelineListProps) {
+  if (loading) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><TableSkeleton rows={4} columns={1} /></div>;
   if (events.length === 0) return <EmptyState title="No timeline events" message="No events match your current filter." />;
 
   return (
@@ -50,9 +62,7 @@ export function TimelineList({ events }: TimelineListProps) {
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-[10px] text-slate-400">by {event.user}</span>
                   <span className="text-[10px] text-slate-300">·</span>
-                  <span className="text-[10px] font-mono text-slate-400">
-                    {MOCK_SHIPMENTS.find((s) => s.id === event.shipmentId)?.trackingId || event.shipmentId}
-                  </span>
+                  <span className="text-[10px] font-mono text-slate-400">{event.shipmentId}</span>
                 </div>
               </div>
             </motion.div>

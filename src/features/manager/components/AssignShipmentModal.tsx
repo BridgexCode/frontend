@@ -1,25 +1,48 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, UserCheck } from "lucide-react";
-import type { Shipment, Worker } from "@/features/manager/services/mock-data";
+import { X, Truck } from "lucide-react";
+
+interface UIShipment {
+  id: string;
+  trackingId: string;
+  customerName: string;
+  status: string;
+}
+
+interface UIDriver {
+  _id: string;
+  name: string;
+  driverId?: string;
+  vehicleNumber?: string;
+}
+
+interface UIVehicle {
+  _id: string;
+  vehicleNumber: string;
+  vehicleModel: string;
+  status: string;
+}
 
 interface AssignShipmentModalProps {
   open: boolean;
-  unassignedShipments: Shipment[];
-  activeWorkers: Worker[];
+  unassignedShipments: UIShipment[];
+  drivers: UIDriver[];
+  vehicles: UIVehicle[];
   selectedShipment: string;
-  selectedWorker: string;
+  selectedDriver: string;
+  selectedVehicle: string;
   onShipmentChange: (value: string) => void;
-  onWorkerChange: (value: string) => void;
+  onDriverChange: (value: string) => void;
+  onVehicleChange: (value: string) => void;
   onClose: () => void;
   onAssign: () => void;
 }
 
 export function AssignShipmentModal({
-  open, unassignedShipments, activeWorkers,
-  selectedShipment, selectedWorker,
-  onShipmentChange, onWorkerChange,
+  open, unassignedShipments, drivers, vehicles,
+  selectedShipment, selectedDriver, selectedVehicle,
+  onShipmentChange, onDriverChange, onVehicleChange,
   onClose, onAssign,
 }: AssignShipmentModalProps) {
   return (
@@ -48,11 +71,11 @@ export function AssignShipmentModal({
 
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                <UserCheck className="w-6 h-6" />
+                <Truck className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900">Assign Shipment</h3>
-                <p className="text-xs text-slate-400">Assign a shipment to a worker.</p>
+                <p className="text-xs text-slate-400">Assign a shipment to a driver and vehicle.</p>
               </div>
             </div>
 
@@ -74,16 +97,32 @@ export function AssignShipmentModal({
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Select Worker</label>
+                <label className="text-xs font-bold text-slate-700">Select Driver</label>
                 <select
-                  value={selectedWorker}
-                  onChange={(e) => onWorkerChange(e.target.value)}
+                  value={selectedDriver}
+                  onChange={(e) => onDriverChange(e.target.value)}
                   className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 bg-white font-medium cursor-pointer"
                 >
-                  <option value="">Choose a worker...</option>
-                  {activeWorkers.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name} ({w.assignedShipments} active)
+                  <option value="">Choose a driver...</option>
+                  {drivers.map((d) => (
+                    <option key={d._id} value={d._id}>
+                      {d.name} ({d.driverId || d._id})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Select Vehicle</label>
+                <select
+                  value={selectedVehicle}
+                  onChange={(e) => onVehicleChange(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 bg-white font-medium cursor-pointer"
+                >
+                  <option value="">Choose a vehicle...</option>
+                  {vehicles.map((v) => (
+                    <option key={v._id} value={v._id}>
+                      {v.vehicleNumber} - {v.vehicleModel} ({v.status})
                     </option>
                   ))}
                 </select>
@@ -99,7 +138,7 @@ export function AssignShipmentModal({
                 </button>
                 <button
                   onClick={onAssign}
-                  disabled={!selectedShipment || !selectedWorker}
+                  disabled={!selectedShipment || !selectedDriver}
                   className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 font-bold text-xs py-3 rounded-xl transition-all shadow-md shadow-emerald-600/10 disabled:opacity-50 cursor-pointer"
                 >
                   Assign

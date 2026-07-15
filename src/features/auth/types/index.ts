@@ -2,6 +2,8 @@ export enum UserRole {
   SUPER_ADMIN = "SUPER_ADMIN",
   ORG_ADMIN = "ORG_ADMIN",
   DRIVER = "DRIVER",
+  WORKER = "WORKER",
+  OPERATIONS_MANAGER = "OPERATIONS_MANAGER",
 }
 
 export interface User {

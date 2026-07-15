@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Building2, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { loginUser } from "@/features/auth/services/auth-api";
 
 export function ManagerLoginForm() {
   const router = useRouter();
@@ -23,12 +24,16 @@ export function ManagerLoginForm() {
     }
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-
-    if (email === "manager@naxivo.com" && password === "password") {
+    try {
+      const { user } = await loginUser(email, password);
+      if (user.role !== "OPERATIONS_MANAGER") {
+        setError("Access denied. Operations Manager role required.");
+        setLoading(false);
+        return;
+      }
       router.push("/manager/dashboard");
-    } else {
-      setError("Invalid credentials. Try manager@naxivo.com / password");
+    } catch (err: any) {
+      setError(err?.response?.data?.error || "Invalid email or password");
       setLoading(false);
     }
   };

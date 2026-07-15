@@ -2,17 +2,28 @@
 
 import { motion } from "framer-motion";
 import { Eye, Edit2, ToggleLeft, ToggleRight } from "lucide-react";
-import { STATUS_BADGE_MAP, type ManagerUser } from "@/features/manager/services/mock-data";
+import { STATUS_BADGE_MAP } from "@/features/manager/services/mock-data";
 import { TableSkeleton } from "./TableSkeleton";
 import { EmptyState } from "./EmptyState";
 
-interface UsersTableProps {
-  users: ManagerUser[];
-  loading: boolean;
-  onView: (user: ManagerUser) => void;
+interface UIUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  status: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+  createdAt: string;
 }
 
-export function UsersTable({ users, loading, onView }: UsersTableProps) {
+interface UsersTableProps {
+  users: UIUser[];
+  loading: boolean;
+  onView: (user: UIUser) => void;
+  onToggleActive?: (user: UIUser) => void;
+}
+
+export function UsersTable({ users, loading, onView, onToggleActive }: UsersTableProps) {
   if (loading) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><TableSkeleton rows={6} columns={7} /></div>;
   if (users.length === 0) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><EmptyState title="No users found" message="Try adjusting your search or filters to find what you're looking for." action={{ label: "Create User", onClick: () => {} }} /></div>;
 
@@ -63,9 +74,11 @@ export function UsersTable({ users, loading, onView }: UsersTableProps) {
                     <button className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all cursor-pointer" title="Edit">
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button className={`p-1.5 rounded-lg transition-all cursor-pointer ${user.status === "ACTIVE" ? "text-slate-400 hover:text-red-600 hover:bg-red-50" : "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"}`} title={user.status === "ACTIVE" ? "Deactivate" : "Activate"}>
-                      {user.status === "ACTIVE" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-                    </button>
+                    {onToggleActive && (
+                      <button onClick={() => onToggleActive(user)} className={`p-1.5 rounded-lg transition-all cursor-pointer ${user.status === "ACTIVE" ? "text-slate-400 hover:text-red-600 hover:bg-red-50" : "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"}`} title={user.status === "ACTIVE" ? "Deactivate" : "Activate"}>
+                        {user.status === "ACTIVE" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                      </button>
+                    )}
                   </div>
                 </td>
               </motion.tr>

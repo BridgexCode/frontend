@@ -11,8 +11,18 @@ export function setStoredToken(token: string): void {
   localStorage.setItem("naxivo_token", token);
 }
 
+export function getStoredEmail(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("naxivo_email");
+}
+
+export function setStoredEmail(email: string): void {
+  localStorage.setItem("naxivo_email", email);
+}
+
 export function removeStoredToken(): void {
   localStorage.removeItem("naxivo_token");
+  localStorage.removeItem("naxivo_email");
 }
 
 const api = axios.create({

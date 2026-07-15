@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Save, Shield, Mail, Bell, Globe } from "lucide-react";
 import { motion } from "framer-motion";
+import { fetchSettingsApi, updateSettingsApi, SystemSettings } from "../services/admin-settings-api";
 
 const SECTIONS = [
   { id: "general", label: "General", icon: Globe },
@@ -13,12 +14,51 @@ const SECTIONS = [
 
 export function SystemSettingsPage() {
   const [activeSection, setActiveSection] = useState("general");
+  const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  useEffect(() => {
+    fetchSettingsApi()
+      .then(setSettings)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleChange = (field: keyof SystemSettings, value: any) => {
+    if (!settings) return;
+    setSettings({ ...settings, [field]: value });
   };
+
+  const handleSave = async () => {
+    if (!settings) return;
+    try {
+      const updated = await updateSettingsApi(settings);
+      setSettings(updated);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch {}
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div><h1 className="text-2xl font-bold text-slate-900">System Settings</h1></div>
+        </div>
+        <div className="bg-white border border-slate-100 rounded-2xl p-8 animate-pulse">
+          <div className="h-6 bg-slate-100 rounded w-1/3 mb-6" />
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-10 bg-slate-100 rounded mb-4" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!settings) {
+    return <div className="text-center py-10 text-slate-400">Failed to load settings.</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -69,19 +109,19 @@ export function SystemSettingsPage() {
             <div className="space-y-5 max-w-lg">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Platform Name</label>
-                <input type="text" defaultValue="Naxivo ERP" className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
+                <input type="text" value={settings.platformName} onChange={(e) => handleChange("platformName", e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Support Email</label>
-                <input type="email" defaultValue="support@naxivo.com" className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
+                <input type="email" value={settings.supportEmail} onChange={(e) => handleChange("supportEmail", e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Max Organizations</label>
-                <input type="number" defaultValue="50" className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
+                <input type="number" value={settings.maxOrganizations} onChange={(e) => handleChange("maxOrganizations", parseInt(e.target.value) || 0)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Default Language</label>
-                <select className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 bg-white font-medium cursor-pointer">
+                <select value={settings.defaultLanguage} onChange={(e) => handleChange("defaultLanguage", e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 bg-white font-medium cursor-pointer">
                   <option>English</option>
                   <option>Spanish</option>
                   <option>French</option>
@@ -92,32 +132,14 @@ export function SystemSettingsPage() {
 
           {activeSection === "security" && (
             <div className="space-y-5 max-w-lg">
-              <div className="flex items-center justify-between py-3 border-b border-slate-50">
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">Two-Factor Authentication</p>
-                  <p className="text-xs text-slate-400">Require 2FA for all admin accounts</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" defaultChecked className="sr-only peer" />
-                  <div className="w-10 h-5.5 bg-slate-200 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:after:translate-x-[18px]" />
-                </label>
-              </div>
-              <div className="flex items-center justify-between py-3 border-b border-slate-50">
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">Password Expiry</p>
-                  <p className="text-xs text-slate-400">Force password change every 90 days</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" />
-                  <div className="w-10 h-5.5 bg-slate-200 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:after:translate-x-[18px]" />
-                </label>
-              </div>
+              <ToggleField label="Two-Factor Authentication" desc="Require 2FA for all admin accounts" value={settings.twoFactorAuth} onChange={(v) => handleChange("twoFactorAuth", v)} />
+              <ToggleField label="Password Expiry" desc="Force password change every 90 days" value={settings.passwordExpiry} onChange={(v) => handleChange("passwordExpiry", v)} />
               <div className="flex items-center justify-between py-3 border-b border-slate-50">
                 <div>
                   <p className="text-sm font-semibold text-slate-700">Session Timeout</p>
                   <p className="text-xs text-slate-400">Auto-logout after inactivity (minutes)</p>
                 </div>
-                <input type="number" defaultValue="60" className="w-24 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 font-medium text-center" />
+                <input type="number" value={settings.sessionTimeout} onChange={(e) => handleChange("sessionTimeout", parseInt(e.target.value) || 0)} className="w-24 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 font-medium text-center" />
               </div>
             </div>
           )}
@@ -126,16 +148,16 @@ export function SystemSettingsPage() {
             <div className="space-y-5 max-w-lg">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">SMTP Host</label>
-                <input type="text" defaultValue="smtp.naxivo.com" className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
+                <input type="text" value={settings.smtpHost} onChange={(e) => handleChange("smtpHost", e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1">Port</label>
-                  <input type="number" defaultValue="587" className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
+                  <input type="number" value={settings.smtpPort} onChange={(e) => handleChange("smtpPort", parseInt(e.target.value) || 0)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1">Encryption</label>
-                  <select className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 bg-white font-medium cursor-pointer">
+                  <select value={settings.smtpEncryption} onChange={(e) => handleChange("smtpEncryption", e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 bg-white font-medium cursor-pointer">
                     <option>TLS</option>
                     <option>SSL</option>
                     <option>None</option>
@@ -144,51 +166,39 @@ export function SystemSettingsPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Username</label>
-                <input type="text" defaultValue="noreply@naxivo.com" className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
+                <input type="text" value={settings.smtpUsername} onChange={(e) => handleChange("smtpUsername", e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>
-                <input type="password" defaultValue="••••••••" className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
+                <input type="password" value={settings.smtpPassword} placeholder="Leave blank to keep current" onChange={(e) => handleChange("smtpPassword", e.target.value)} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
               </div>
             </div>
           )}
 
           {activeSection === "notifications" && (
             <div className="space-y-5 max-w-lg">
-              <div className="flex items-center justify-between py-3 border-b border-slate-50">
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">Email Alerts</p>
-                  <p className="text-xs text-slate-400">System alerts via email</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" defaultChecked className="sr-only peer" />
-                  <div className="w-10 h-5.5 bg-slate-200 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:after:translate-x-[18px]" />
-                </label>
-              </div>
-              <div className="flex items-center justify-between py-3 border-b border-slate-50">
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">New Organization Signup</p>
-                  <p className="text-xs text-slate-400">Notify when a new org registers</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" defaultChecked className="sr-only peer" />
-                  <div className="w-10 h-5.5 bg-slate-200 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:after:translate-x-[18px]" />
-                </label>
-              </div>
-              <div className="flex items-center justify-between py-3 border-b border-slate-50">
-                <div>
-                  <p className="text-sm font-semibold text-slate-700">Error Reports</p>
-                  <p className="text-xs text-slate-400">Receive system error notifications</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" defaultChecked className="sr-only peer" />
-                  <div className="w-10 h-5.5 bg-slate-200 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:after:translate-x-[18px]" />
-                </label>
-              </div>
+              <ToggleField label="Email Alerts" desc="System alerts via email" value={settings.emailAlerts} onChange={(v) => handleChange("emailAlerts", v)} />
+              <ToggleField label="New Organization Signup" desc="Notify when a new org registers" value={settings.newOrgSignup} onChange={(v) => handleChange("newOrgSignup", v)} />
+              <ToggleField label="Error Reports" desc="Receive system error notifications" value={settings.errorReports} onChange={(v) => handleChange("errorReports", v)} />
             </div>
           )}
         </motion.div>
       </div>
+    </div>
+  );
+}
+
+function ToggleField({ label, desc, value, onChange }: { label: string; desc: string; value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between py-3 border-b border-slate-50">
+      <div>
+        <p className="text-sm font-semibold text-slate-700">{label}</p>
+        <p className="text-xs text-slate-400">{desc}</p>
+      </div>
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} className="sr-only peer" />
+        <div className="w-10 h-5.5 bg-slate-200 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:after:translate-x-[18px]" />
+      </label>
     </div>
   );
 }

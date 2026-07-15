@@ -1,34 +1,73 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, RotateCw, Filter, ChevronDown, Plus, Eye, ToggleLeft, ToggleRight, Trash2, Building2 } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Search, RotateCw, Filter, ChevronDown, Eye, ToggleLeft, ToggleRight, Trash2, Building2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Organization } from "../types";
-import { MOCK_ORGANIZATIONS, STATUS_BADGE } from "../services/mock-data";
+import { fetchOrganizationsApi, toggleOrganizationStatusApi, deleteOrganizationApi, Organization } from "../services/admin-orgs-api";
+import { STATUS_BADGE } from "../services/mock-data";
 import { TableSkeleton } from "@/features/manager/components/TableSkeleton";
+import { Mail } from "lucide-react";
+import { getStoredEmail } from "@/shared/lib/axios";
 
 export function OrganizationsPage() {
-  const [orgs, setOrgs] = useState<Organization[]>(MOCK_ORGANIZATIONS);
+  const [orgs, setOrgs] = useState<Organization[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setAdminEmail(getStoredEmail() || "admin@naxivo.com");
+  }, []);
+
+  const loadOrgs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchOrganizationsApi();
+      setOrgs(data);
+    } catch {}
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { loadOrgs(); }, [loadOrgs]);
 
   const filtered = useMemo(() => {
     return orgs.filter((o) => {
       const matchesSearch =
         o.name.toLowerCase().includes(search.toLowerCase()) ||
         o.email.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = statusFilter === "ALL" || o.status === statusFilter;
+      const status = o.status === "active" ? "ACTIVE" : "SUSPENDED";
+      const matchesStatus = statusFilter === "ALL" || status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [orgs, search, statusFilter]);
 
-  const handleRefresh = () => {
-    setLoading(true);
-    setTimeout(() => setLoading(false), 800);
+  const handleToggle = async (org: Organization) => {
+    const newStatus = org.status === "active" ? "inactive" : "active";
+    try {
+      const updated = await toggleOrganizationStatusApi(org._id, newStatus);
+      setOrgs((prev) =>
+        prev.map((o) => (o._id === org._id ? { ...o, status: updated.status } : o)),
+      );
+      setError("");
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Failed to toggle status");
+    }
   };
+
+  const handleDelete = async (org: Organization) => {
+    if (!confirm(`Are you sure you want to delete "${org.name}"?`)) return;
+    try {
+      await deleteOrganizationApi(org._id);
+      setOrgs((prev) => prev.filter((o) => o._id !== org._id));
+    } catch {}
+  };
+
+  const uiStatus = (status: string) => status === "active" ? "ACTIVE" : "SUSPENDED";
+  const uiPlan = (plan: string) => plan || "FREE";
 
   return (
     <div className="space-y-6">
@@ -36,6 +75,7 @@ export function OrganizationsPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Organizations</h1>
           <p className="text-sm text-slate-400 mt-0.5">Manage all organizations on the platform</p>
+          <p className="text-sm text-slate-600 mt-2 flex items-center gap-1.5"><Mail className="w-4 h-4 text-emerald-500" />{adminEmail || "admin@naxivo.com"}</p>
         </div>
       </div>
 
@@ -60,7 +100,7 @@ export function OrganizationsPage() {
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? "rotate-180" : ""}`} />
           </button>
           <button
-            onClick={handleRefresh}
+            onClick={loadOrgs}
             className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
           >
             <RotateCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -87,6 +127,10 @@ export function OrganizationsPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {error && (
+          <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+        )}
       </div>
 
       {loading ? (
@@ -103,6 +147,8 @@ export function OrganizationsPage() {
                   <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email</th>
                   <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Plan</th>
                   <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Users</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Shipments</th>
                   <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Created</th>
                   <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -110,7 +156,7 @@ export function OrganizationsPage() {
               <tbody>
                 {filtered.map((org) => (
                   <motion.tr
-                    key={org.id}
+                    key={org._id}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
@@ -120,25 +166,27 @@ export function OrganizationsPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-500">{org.email}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${STATUS_BADGE[org.plan]}`}>
-                        {org.plan}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${STATUS_BADGE[uiPlan(org.plan)] || "bg-slate-100 text-slate-600"}`}>
+                        {uiPlan(org.plan)}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${STATUS_BADGE[org.status]}`}>
-                        {org.status}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${STATUS_BADGE[uiStatus(org.status)]}`}>
+                        {uiStatus(org.status)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">{org.createdAt}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">{org.totalUsers}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">{org.totalShipments}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">{new Date(org.createdAt).toISOString().split("T")[0]}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <button onClick={() => setSelectedOrg(org)} className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all cursor-pointer" title="View">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all cursor-pointer" title="Toggle Active">
-                          {org.status === "ACTIVE" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                        <button onClick={() => handleToggle(org)} className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all cursor-pointer" title="Toggle Active">
+                          {org.status === "active" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
                         </button>
-                        <button className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer" title="Delete">
+                        <button onClick={() => handleDelete(org)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer" title="Delete">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -168,10 +216,12 @@ export function OrganizationsPage() {
               </div>
               <div className="space-y-3">
                 {[
-                  { label: "Phone", value: selectedOrg.phone },
-                  { label: "Plan", value: selectedOrg.plan },
-                  { label: "Status", value: selectedOrg.status },
-                  { label: "Created", value: selectedOrg.createdAt },
+                  { label: "Phone", value: selectedOrg.phone || "N/A" },
+                  { label: "Plan", value: uiPlan(selectedOrg.plan) },
+                  { label: "Status", value: uiStatus(selectedOrg.status) },
+                  { label: "Users", value: selectedOrg.totalUsers },
+                  { label: "Shipments", value: selectedOrg.totalShipments },
+                  { label: "Created", value: new Date(selectedOrg.createdAt).toISOString().split("T")[0] },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center justify-between py-2 border-b border-slate-50">
                     <span className="text-xs font-semibold text-slate-400">{item.label}</span>

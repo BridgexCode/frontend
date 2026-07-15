@@ -14,7 +14,11 @@ function statusBadge(status: string): string {
     case "delivered": return "bg-green-50 text-green-600";
     case "in_transit": return "bg-sky-50 text-sky-600";
     case "cancelled": return "bg-red-50 text-red-600";
-    default: return "bg-amber-50 text-amber-600";
+    case "delayed": return "bg-orange-50 text-orange-600";
+    case "created":
+    case "assigned":
+    case "picked_up": return "bg-amber-50 text-amber-600";
+    default: return "bg-slate-100 text-slate-600";
   }
 }
 
@@ -23,6 +27,7 @@ function statusLabel(status: string): string {
     case "delivered": return "DELIVERED";
     case "in_transit": return "IN TRANSIT";
     case "cancelled": return "CANCELLED";
+    case "delayed": return "DELAYED";
     case "created": return "CREATED";
     case "assigned": return "ASSIGNED";
     case "picked_up": return "PICKED UP";

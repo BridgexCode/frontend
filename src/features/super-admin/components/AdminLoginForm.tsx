@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Network, Eye, EyeOff, ArrowRight, ShieldAlert } from "lucide-react";
+import { loginApi } from "../services/admin-auth-api";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -23,12 +24,17 @@ export function AdminLoginForm() {
     }
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
 
-    if (email === "admin@naxivo.com" && password === "admin123") {
-      router.push("/admin/dashboard");
-    } else {
-      setError("Invalid credentials. Try admin@naxivo.com / admin123");
+    try {
+      const result = await loginApi({ email, password });
+      if (result.user.role === "SUPER_ADMIN") {
+        router.push("/admin/dashboard");
+      } else {
+        setError("Access denied. Super Admin credentials required.");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Invalid credentials. Please try again.");
+    } finally {
       setLoading(false);
     }
   };

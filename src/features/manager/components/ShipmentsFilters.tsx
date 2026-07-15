@@ -51,9 +51,11 @@ export function ShipmentsFilters({ search, onSearchChange, statusFilter, onStatu
             >
               <option value="ALL">All Statuses</option>
               <option value="Pending">Pending</option>
-              <option value="Assigned">Assigned</option>
+              <option value="Dispatched">Dispatched</option>
+              <option value="Picked Up">Picked Up</option>
               <option value="In Transit">In Transit</option>
               <option value="Delivered">Delivered</option>
+              <option value="Delayed">Delayed</option>
               <option value="Failed">Failed</option>
             </select>
           </motion.div>

@@ -18,7 +18,7 @@ export interface ManagerUser {
   createdAt: string;
 }
 
-export type ShipmentStatus = "Pending" | "Assigned" | "In Transit" | "Delivered" | "Failed";
+export type ShipmentStatus = "Pending" | "Dispatched" | "Picked Up" | "In Transit" | "Delivered" | "Delayed" | "Failed";
 export type ShipmentPriority = "Low" | "Medium" | "High" | "Urgent";
 
 export interface Shipment {
@@ -79,7 +79,7 @@ export const MOCK_USERS: ManagerUser[] = [
 export const MOCK_SHIPMENTS: Shipment[] = [
   { id: "S001", trackingId: "NAX-2026-001", worker: "Ravi Kumar", status: "Delivered", priority: "High", pickup: "Mumbai Warehouse", delivery: "Pune Hub", customerName: "ABC Corp", customerPhone: "9123456780", notes: "Handle with care", createdAt: "2026-05-01" },
   { id: "S002", trackingId: "NAX-2026-002", worker: "Priya Sharma", status: "In Transit", priority: "Urgent", pickup: "Delhi Hub", delivery: "Jaipur Center", customerName: "XYZ Ltd", customerPhone: "9123456781", notes: "Priority delivery", createdAt: "2026-05-05" },
-  { id: "S003", trackingId: "NAX-2026-003", worker: "Sneha Patel", status: "Assigned", priority: "Medium", pickup: "Chennai Port", delivery: "Bangalore Hub", customerName: "PQR Industries", customerPhone: "9123456782", notes: "", createdAt: "2026-05-10" },
+  { id: "S003", trackingId: "NAX-2026-003", worker: "Sneha Patel", status: "Dispatched", priority: "Medium", pickup: "Chennai Port", delivery: "Bangalore Hub", customerName: "PQR Industries", customerPhone: "9123456782", notes: "", createdAt: "2026-05-10" },
   { id: "S004", trackingId: "NAX-2026-004", worker: "Vikram Joshi", status: "Pending", priority: "Low", pickup: "Kochi Hub", delivery: "Trivandrum Center", customerName: "LMN Traders", customerPhone: "9123456783", notes: "Fragile items", createdAt: "2026-05-12" },
   { id: "S005", trackingId: "NAX-2026-005", worker: "Neha Gupta", status: "Failed", priority: "High", pickup: "Mumbai Warehouse", delivery: "Ahmedabad Hub", customerName: "DEF Enterprises", customerPhone: "9123456784", notes: "Address issue", createdAt: "2026-05-08" },
   { id: "S006", trackingId: "NAX-2026-006", worker: "Ananya Reddy", status: "Delivered", priority: "Medium", pickup: "Hyderabad Hub", delivery: "Visakhapatnam Center", customerName: "GHI Group", customerPhone: "9123456785", notes: "", createdAt: "2026-04-28" },
@@ -130,9 +130,11 @@ export const STATUS_BADGE_MAP: Record<string, string> = {
   INACTIVE: "bg-slate-100 text-slate-500",
   SUSPENDED: "bg-red-100 text-red-700",
   Pending: "bg-amber-100 text-amber-700",
-  Assigned: "bg-blue-100 text-blue-700",
+  Dispatched: "bg-blue-100 text-blue-700",
+  "Picked Up": "bg-purple-100 text-purple-700",
   "In Transit": "bg-indigo-100 text-indigo-700",
   Delivered: "bg-emerald-100 text-emerald-700",
+  Delayed: "bg-orange-100 text-orange-700",
   Failed: "bg-red-100 text-red-700",
   Low: "bg-slate-100 text-slate-600",
   Medium: "bg-blue-100 text-blue-700",
