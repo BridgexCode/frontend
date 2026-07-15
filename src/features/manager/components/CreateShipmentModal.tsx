@@ -1,7 +1,20 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Package } from "lucide-react";
+import { X, Package, CheckSquare } from "lucide-react";
+
+interface UIDriver {
+  _id: string;
+  name: string;
+  driverId?: string;
+}
+
+interface UIVehicle {
+  _id: string;
+  vehicleNumber: string;
+  vehicleModel: string;
+  status: string;
+}
 
 interface NewShipmentForm {
   trackingId: string;
@@ -11,6 +24,9 @@ interface NewShipmentForm {
   customerPhone: string;
   priority: "Low" | "Medium" | "High" | "Urgent";
   notes: string;
+  assignShipment: boolean;
+  selectedDriverId: string;
+  selectedVehicleId: string;
 }
 
 interface CreateShipmentModalProps {
@@ -19,9 +35,11 @@ interface CreateShipmentModalProps {
   onFormChange: (form: NewShipmentForm) => void;
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
+  drivers: UIDriver[];
+  vehicles: UIVehicle[];
 }
 
-export function CreateShipmentModal({ open, form, onFormChange, onClose, onSubmit }: CreateShipmentModalProps) {
+export function CreateShipmentModal({ open, form, onFormChange, onClose, onSubmit, drivers, vehicles }: CreateShipmentModalProps) {
   return (
     <AnimatePresence>
       {open && (
@@ -54,10 +72,6 @@ export function CreateShipmentModal({ open, form, onFormChange, onClose, onSubmi
             </div>
 
             <form onSubmit={onSubmit} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Tracking Number *</label>
-                <input type="text" placeholder="e.g. NAX-2026-009" value={form.trackingId} onChange={(e) => onFormChange({ ...form, trackingId: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium" />
-              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-700">Pickup Location *</label>
@@ -87,6 +101,56 @@ export function CreateShipmentModal({ open, form, onFormChange, onClose, onSubmi
                   <option value="Urgent">Urgent</option>
                 </select>
               </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="assignShipment"
+                  checked={form.assignShipment}
+                  onChange={(e) => onFormChange({ ...form, assignShipment: e.target.checked })}
+                  className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                />
+                <label htmlFor="assignShipment" className="text-xs font-bold text-slate-700 cursor-pointer flex items-center gap-1.5">
+                  <CheckSquare className="w-3.5 h-3.5 text-emerald-600" />
+                  Assign Shipment
+                </label>
+              </div>
+
+              {form.assignShipment && (
+                <div className="space-y-4 pl-1 border-l-2 border-emerald-200 pl-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Select Driver *</label>
+                    <select
+                      value={form.selectedDriverId}
+                      onChange={(e) => onFormChange({ ...form, selectedDriverId: e.target.value })}
+                      className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 bg-white font-medium cursor-pointer"
+                    >
+                      <option value="">Choose a driver...</option>
+                      {drivers.map((d) => (
+                        <option key={d._id} value={d._id}>
+                          {d.name} ({d.driverId || d._id})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Select Vehicle</label>
+                    <select
+                      value={form.selectedVehicleId}
+                      onChange={(e) => onFormChange({ ...form, selectedVehicleId: e.target.value })}
+                      className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 bg-white font-medium cursor-pointer"
+                    >
+                      <option value="">Choose a vehicle (optional)...</option>
+                      {vehicles.map((v) => (
+                        <option key={v._id} value={v._id}>
+                          {v.vehicleNumber} - {v.vehicleModel} ({v.status})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700">Notes</label>
                 <textarea placeholder="Optional notes..." value={form.notes} onChange={(e) => onFormChange({ ...form, notes: e.target.value })} rows={2} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 font-medium resize-none" />
@@ -94,7 +158,7 @@ export function CreateShipmentModal({ open, form, onFormChange, onClose, onSubmi
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={onClose} className="flex-1 border border-slate-200 hover:bg-slate-50 font-bold text-xs py-3 rounded-xl transition-all cursor-pointer">Cancel</button>
-                <button type="submit" className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 font-bold text-xs py-3 rounded-xl transition-all shadow-md shadow-emerald-600/10 cursor-pointer">Create Shipment</button>
+                <button type="submit" disabled={form.assignShipment && !form.selectedDriverId} className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 font-bold text-xs py-3 rounded-xl transition-all shadow-md shadow-emerald-600/10 cursor-pointer disabled:opacity-50">Create Shipment</button>
               </div>
             </form>
           </motion.div>

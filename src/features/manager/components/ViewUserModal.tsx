@@ -2,10 +2,19 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import type { ManagerUser } from "@/features/manager/services/mock-data";
+
+interface UIUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  status: string;
+  createdAt: string;
+}
 
 interface ViewUserModalProps {
-  user: ManagerUser | null;
+  user: UIUser | null;
   onClose: () => void;
 }
 

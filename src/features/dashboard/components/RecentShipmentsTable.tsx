@@ -16,7 +16,9 @@ function mapStatus(status: string): { label: string; color: string } {
     case "in_transit":
       return { label: "IN TRANSIT", color: "bg-sky-50 text-sky-600" };
     case "cancelled":
-      return { label: "DELAYED", color: "bg-red-50 text-red-600" };
+      return { label: "CANCELLED", color: "bg-red-50 text-red-600" };
+    case "delayed":
+      return { label: "DELAYED", color: "bg-orange-50 text-orange-600" };
     default:
       return { label: status.replace(/_/g, " ").toUpperCase(), color: "bg-amber-50 text-amber-600" };
   }

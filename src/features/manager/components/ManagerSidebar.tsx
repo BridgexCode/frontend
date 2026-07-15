@@ -7,16 +7,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Users, UserCheck, Package, Clock,
   AlertTriangle, BarChart3, Settings, ChevronDown,
-  Menu, X, LogOut, Building2,
+  Menu, X, LogOut, Building2, Truck, Navigation,
 } from "lucide-react";
 
 const sidebarItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/manager/dashboard" },
   { label: "Users", icon: Users, href: "/manager/users" },
   { label: "Workers", icon: UserCheck, href: "/manager/workers" },
+  { label: "Drivers", icon: Navigation, href: "/manager/drivers" },
+  { label: "Vehicles", icon: Truck, href: "/manager/vehicles" },
   { label: "Shipments", icon: Package, href: "/manager/shipments" },
   { label: "Timeline", icon: Clock, href: "/manager/timeline" },
-  { label: "Failed Messages", icon: AlertTriangle, href: "/manager/failed-messages" },
   { label: "Reports", icon: BarChart3, href: "/manager/reports" },
   { label: "Settings", icon: Settings, href: "/manager/settings" },
 ];

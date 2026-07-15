@@ -2,17 +2,28 @@
 
 import { motion } from "framer-motion";
 import { Eye, Edit2, ToggleLeft, ToggleRight } from "lucide-react";
-import { STATUS_BADGE_MAP, type Worker } from "@/features/manager/services/mock-data";
+import { STATUS_BADGE_MAP } from "@/features/manager/services/mock-data";
 import { TableSkeleton } from "./TableSkeleton";
 import { EmptyState } from "./EmptyState";
 
-interface WorkersTableProps {
-  workers: Worker[];
-  loading: boolean;
-  onCreateClick: () => void;
+interface UIWorker {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  assignedShipments: number;
+  status: "ACTIVE" | "INACTIVE";
+  createdAt: string;
 }
 
-export function WorkersTable({ workers, loading, onCreateClick }: WorkersTableProps) {
+interface WorkersTableProps {
+  workers: UIWorker[];
+  loading: boolean;
+  onCreateClick: () => void;
+  onToggleActive?: (worker: UIWorker) => void;
+}
+
+export function WorkersTable({ workers, loading, onCreateClick, onToggleActive }: WorkersTableProps) {
   if (loading) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><TableSkeleton rows={5} columns={6} /></div>;
   if (workers.length === 0) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><EmptyState title="No workers found" message="There are no workers matching your search." action={{ label: "Create Worker", onClick: onCreateClick }} /></div>;
 
@@ -57,9 +68,11 @@ export function WorkersTable({ workers, loading, onCreateClick }: WorkersTablePr
                     <button className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all cursor-pointer" title="Edit">
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button className={`p-1.5 rounded-lg transition-all cursor-pointer ${worker.status === "ACTIVE" ? "text-slate-400 hover:text-red-600 hover:bg-red-50" : "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"}`} title={worker.status === "ACTIVE" ? "Deactivate" : "Activate"}>
-                      {worker.status === "ACTIVE" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-                    </button>
+                    {onToggleActive && (
+                      <button onClick={() => onToggleActive(worker)} className={`p-1.5 rounded-lg transition-all cursor-pointer ${worker.status === "ACTIVE" ? "text-slate-400 hover:text-red-600 hover:bg-red-50" : "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"}`} title={worker.status === "ACTIVE" ? "Deactivate" : "Activate"}>
+                        {worker.status === "ACTIVE" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                      </button>
+                    )}
                   </div>
                 </td>
               </motion.tr>

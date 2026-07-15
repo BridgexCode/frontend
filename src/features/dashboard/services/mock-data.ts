@@ -128,11 +128,13 @@ export const MOCK_DASHBOARD_SHIPMENTS: DashboardShipment[] = [
 
 export interface Driver {
   id: string;
+  driverId?: string;
   name: string;
   email: string;
   phone: string;
   licenseNumber: string;
   assignedVehicle: string;
+  telegramId?: string;
   status: "ACTIVE" | "INACTIVE" | "ON_LEAVE";
   assignedShipments: number;
   rating: number;
@@ -140,12 +142,12 @@ export interface Driver {
 }
 
 export const MOCK_DRIVERS: Driver[] = [
-  { id: "D001", name: "Rahul P", email: "rahul@naxivo.com", phone: "9876543210", licenseNumber: "DL-07-2024-001", assignedVehicle: "KL-07-AB-1234", status: "ACTIVE", assignedShipments: 5, rating: 4.8, createdAt: "2026-01-15" },
-  { id: "D002", name: "Vishnu R", email: "vishnu@naxivo.com", phone: "9876543211", licenseNumber: "DL-07-2024-002", assignedVehicle: "KL-07-CD-5678", status: "ACTIVE", assignedShipments: 3, rating: 4.5, createdAt: "2026-02-10" },
-  { id: "D003", name: "Sajith K", email: "sajith@naxivo.com", phone: "9876543212", licenseNumber: "DL-07-2024-003", assignedVehicle: "KL-07-EF-9012", status: "ON_LEAVE", assignedShipments: 0, rating: 4.2, createdAt: "2026-03-05" },
-  { id: "D004", name: "Ajeesh M", email: "ajeesh@naxivo.com", phone: "9876543213", licenseNumber: "DL-07-2024-004", assignedVehicle: "KL-07-GH-3456", status: "ACTIVE", assignedShipments: 7, rating: 4.9, createdAt: "2026-01-20" },
-  { id: "D005", name: "Nithin S", email: "nithin@naxivo.com", phone: "9876543214", licenseNumber: "DL-07-2024-005", assignedVehicle: "KL-07-IJ-7890", status: "ACTIVE", assignedShipments: 2, rating: 4.1, createdAt: "2026-04-01" },
-  { id: "D006", name: "Sreelakshmi K", email: "sreelakshmi@naxivo.com", phone: "9876543215", licenseNumber: "DL-07-2024-006", assignedVehicle: "KL-07-KL-1111", status: "INACTIVE", assignedShipments: 0, rating: 4.6, createdAt: "2026-05-12" },
+  { id: "D001", driverId: "DRV001", name: "Rahul P", email: "rahul@naxivo.com", phone: "9876543210", licenseNumber: "DL-07-2024-001", assignedVehicle: "KL-07-AB-1234", telegramId: "123456789", status: "ACTIVE", assignedShipments: 5, rating: 4.8, createdAt: "2026-01-15" },
+  { id: "D002", driverId: "DRV002", name: "Vishnu R", email: "vishnu@naxivo.com", phone: "9876543211", licenseNumber: "DL-07-2024-002", assignedVehicle: "KL-07-CD-5678", status: "ACTIVE", assignedShipments: 3, rating: 4.5, createdAt: "2026-02-10" },
+  { id: "D003", driverId: "DRV003", name: "Sajith K", email: "sajith@naxivo.com", phone: "9876543212", licenseNumber: "DL-07-2024-003", assignedVehicle: "KL-07-EF-9012", status: "ON_LEAVE", assignedShipments: 0, rating: 4.2, createdAt: "2026-03-05" },
+  { id: "D004", driverId: "DRV004", name: "Ajeesh M", email: "ajeesh@naxivo.com", phone: "9876543213", licenseNumber: "DL-07-2024-004", assignedVehicle: "KL-07-GH-3456", status: "ACTIVE", assignedShipments: 7, rating: 4.9, createdAt: "2026-01-20" },
+  { id: "D005", driverId: "DRV005", name: "Nithin S", email: "nithin@naxivo.com", phone: "9876543214", licenseNumber: "DL-07-2024-005", assignedVehicle: "KL-07-IJ-7890", status: "ACTIVE", assignedShipments: 2, rating: 4.1, createdAt: "2026-04-01" },
+  { id: "D006", driverId: "DRV006", name: "Sreelakshmi K", email: "sreelakshmi@naxivo.com", phone: "9876543215", licenseNumber: "DL-07-2024-006", assignedVehicle: "KL-07-KL-1111", status: "INACTIVE", assignedShipments: 0, rating: 4.6, createdAt: "2026-05-12" },
 ];
 
 // ── Vehicles ──

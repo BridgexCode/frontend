@@ -1,37 +1,60 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Download, Building2, Activity, Clock, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
-import { MOCK_SYSTEM_STATS } from "../services/mock-data";
-
-const MONTHLY_DATA = [
-  { month: "Jan", shipments: 28 },
-  { month: "Feb", shipments: 35 },
-  { month: "Mar", shipments: 42 },
-  { month: "Apr", shipments: 38 },
-  { month: "May", shipments: 52 },
-  { month: "Jun", shipments: 48 },
-];
-
-const PLAN_DATA = [
-  { label: "Enterprise", value: 2, color: "#8b5cf6", total: 6 },
-  { label: "Pro", value: 2, color: "#3b82f6", total: 6 },
-  { label: "Free", value: 2, color: "#94a3b8", total: 6 },
-];
-
-const ORG_GROWTH_DATA = [
-  { month: "Jan", orgs: 2 },
-  { month: "Feb", orgs: 3 },
-  { month: "Mar", orgs: 3 },
-  { month: "Apr", orgs: 4 },
-  { month: "May", orgs: 5 },
-  { month: "Jun", orgs: 6 },
-];
+import {
+  fetchMonthlyShipmentsApi,
+  fetchPlanDistributionApi,
+  fetchOrganizationGrowthApi,
+  MonthlyShipment,
+  PlanDistribution,
+  OrganizationGrowth,
+} from "../services/admin-reports-api";
+import { fetchDashboardStatsApi, DashboardStats } from "../services/admin-dashboard-api";
 
 export function ReportsPage() {
-  const stats = MOCK_SYSTEM_STATS;
-  const maxShipments = Math.max(...MONTHLY_DATA.map((d) => d.shipments));
-  const maxOrgs = Math.max(...ORG_GROWTH_DATA.map((d) => d.orgs));
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [monthlyData, setMonthlyData] = useState<MonthlyShipment[]>([]);
+  const [planData, setPlanData] = useState<PlanDistribution[]>([]);
+  const [growthData, setGrowthData] = useState<OrganizationGrowth[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetchDashboardStatsApi(),
+      fetchMonthlyShipmentsApi(),
+      fetchPlanDistributionApi(),
+      fetchOrganizationGrowthApi(),
+    ])
+      .then(([s, m, p, g]) => {
+        setStats(s);
+        setMonthlyData(m);
+        setPlanData(p);
+        setGrowthData(g);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div><h1 className="text-2xl font-bold text-slate-900">Reports</h1></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white border border-slate-100 rounded-2xl p-5 animate-pulse">
+              <div className="h-4 bg-slate-100 rounded w-1/2 mb-3" />
+              <div className="h-8 bg-slate-100 rounded w-1/3" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const maxShipments = monthlyData.length > 0 ? Math.max(...monthlyData.map((d) => d.shipments)) : 1;
+  const maxOrgs = growthData.length > 0 ? Math.max(...growthData.map((d) => d.orgs)) : 1;
 
   return (
     <div className="space-y-6">
@@ -50,9 +73,9 @@ export function ReportsPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
-          { label: "Total Organizations", value: stats.totalOrganizations, icon: Building2, color: "bg-purple-50 text-purple-600" },
-          { label: "Active Organizations", value: stats.activeOrganizations, icon: Activity, color: "bg-emerald-50 text-emerald-600" },
-          { label: "System Uptime", value: stats.systemUptime, icon: Clock, color: "bg-amber-50 text-amber-600" },
+          { label: "Total Organizations", value: stats?.totalOrganizations || 0, icon: Building2, color: "bg-purple-50 text-purple-600" },
+          { label: "Active Organizations", value: stats?.activeOrganizations || 0, icon: Activity, color: "bg-emerald-50 text-emerald-600" },
+          { label: "Total Shipments", value: stats?.totalShipments || 0, icon: Clock, color: "bg-amber-50 text-amber-600" },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -80,13 +103,13 @@ export function ReportsPage() {
           </div>
           <div className="relative w-full h-[180px]">
             <svg viewBox="0 0 500 160" className="w-full h-full">
-              {[0, 25, 50].map((y) => (
-                <line key={y} x1="40" y1={140 - y} x2="480" y2={140 - y} stroke="#f1f5f9" strokeWidth={1} />
+              {[0, Math.round(maxShipments / 2), maxShipments].map((y, idx) => (
+                <line key={idx} x1="40" y1={140 - idx * 70} x2="480" y2={140 - idx * 70} stroke="#f1f5f9" strokeWidth={1} />
               ))}
               <text x="10" y="145" fill="#94a3b8" fontSize="9" fontWeight="bold">0</text>
-              <text x="10" y="118" fill="#94a3b8" fontSize="9" fontWeight="bold">25</text>
-              <text x="10" y="93" fill="#94a3b8" fontSize="9" fontWeight="bold">50</text>
-              {MONTHLY_DATA.map((d, i) => {
+              <text x="10" y={75} fill="#94a3b8" fontSize="9" fontWeight="bold">{Math.round(maxShipments / 2)}</text>
+              <text x="10" y={45} fill="#94a3b8" fontSize="9" fontWeight="bold">{maxShipments}</text>
+              {monthlyData.map((d, i) => {
                 const barH = (d.shipments / maxShipments) * 100;
                 const x = 50 + i * 73;
                 return (
@@ -101,7 +124,7 @@ export function ReportsPage() {
                       fill="#10b981"
                     />
                     <text x={x + 18} y="155" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="middle">
-                      {d.month}
+                      {d.month.split(" ")[0]}
                     </text>
                     <text x={x + 18} y={140 - barH - 6} fill="#64748b" fontSize="8" fontWeight="bold" textAnchor="middle">
                       {d.shipments}
@@ -124,28 +147,34 @@ export function ReportsPage() {
                 <circle cx="72" cy="72" r="50" fill="transparent" stroke="#f1f5f9" strokeWidth="16" />
                 {(() => {
                   const circ = 2 * Math.PI * 50;
-                  const entPct = 2 / 6;
-                  const proPct = 2 / 6;
-                  const freePct = 2 / 6;
-                  const entDash = circ * entPct;
-                  const proDash = circ * proPct;
-                  const freeDash = circ * freePct;
-                  return (
-                    <>
-                      <circle cx="72" cy="72" r="50" fill="transparent" stroke="#8b5cf6" strokeWidth="16" strokeDasharray={`${entDash} ${circ - entDash}`} strokeDashoffset="0" strokeLinecap="round" />
-                      <circle cx="72" cy="72" r="50" fill="transparent" stroke="#3b82f6" strokeWidth="16" strokeDasharray={`${proDash} ${circ - proDash}`} strokeDashoffset={-entDash} strokeLinecap="round" />
-                      <circle cx="72" cy="72" r="50" fill="transparent" stroke="#94a3b8" strokeWidth="16" strokeDasharray={`${freeDash} ${circ - freeDash}`} strokeDashoffset={-(entDash + proDash)} strokeLinecap="round" />
-                    </>
-                  );
+                  let offset = 0;
+                  return planData.map((item) => {
+                    const pct = item.value / item.total;
+                    const dash = circ * pct;
+                    const seg = (
+                      <circle
+                        key={item.label}
+                        cx="72" cy="72" r="50"
+                        fill="transparent"
+                        stroke={item.color}
+                        strokeWidth="16"
+                        strokeDasharray={`${dash} ${circ - dash}`}
+                        strokeDashoffset={-offset}
+                        strokeLinecap="round"
+                      />
+                    );
+                    offset += dash;
+                    return seg;
+                  });
                 })()}
               </svg>
               <div className="absolute text-center">
                 <span className="text-[10px] font-bold text-slate-400 block leading-none">Total</span>
-                <span className="text-xl font-extrabold text-slate-800 block mt-1">{stats.totalOrganizations}</span>
+                <span className="text-xl font-extrabold text-slate-800 block mt-1">{stats?.totalOrganizations || 0}</span>
               </div>
             </div>
             <div className="w-full space-y-2 text-xs font-semibold text-slate-500">
-              {PLAN_DATA.map((item) => (
+              {planData.map((item) => (
                 <div key={item.label} className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
@@ -166,13 +195,13 @@ export function ReportsPage() {
         </div>
         <div className="relative w-full h-[180px]">
           <svg viewBox="0 0 500 160" className="w-full h-full">
-            {[0, 3, 6].map((y) => (
-              <line key={y} x1="40" y1={140 - y * 20} x2="480" y2={140 - y * 20} stroke="#f1f5f9" strokeWidth={1} />
+            {[0, Math.round(maxOrgs / 2), maxOrgs].map((y, idx) => (
+              <line key={idx} x1="40" y1={140 - idx * 70} x2="480" y2={140 - idx * 70} stroke="#f1f5f9" strokeWidth={1} />
             ))}
             <text x="10" y="145" fill="#94a3b8" fontSize="9" fontWeight="bold">0</text>
-            <text x="10" y="83" fill="#94a3b8" fontSize="9" fontWeight="bold">3</text>
-            <text x="10" y="43" fill="#94a3b8" fontSize="9" fontWeight="bold">6</text>
-            {ORG_GROWTH_DATA.map((d, i) => {
+            <text x="10" y={75} fill="#94a3b8" fontSize="9" fontWeight="bold">{Math.round(maxOrgs / 2)}</text>
+            <text x="10" y={45} fill="#94a3b8" fontSize="9" fontWeight="bold">{maxOrgs}</text>
+            {growthData.map((d, i) => {
               const barH = (d.orgs / maxOrgs) * 100;
               const x = 50 + i * 73;
               return (

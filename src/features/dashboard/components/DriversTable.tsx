@@ -18,7 +18,7 @@ interface DriversTableProps {
 }
 
 export function DriversTable({ drivers, loading, onView, onEdit, onCreateClick, onToggleActive, onDelete }: DriversTableProps) {
-  if (loading) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><TableSkeleton rows={5} columns={7} /></div>;
+  if (loading) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><TableSkeleton rows={5} columns={8} /></div>;
   if (drivers.length === 0) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><EmptyState title="No drivers found" message="Try adjusting your search or filters." action={{ label: "Add Driver", onClick: onCreateClick }} /></div>;
 
   return (
@@ -28,6 +28,7 @@ export function DriversTable({ drivers, loading, onView, onEdit, onCreateClick, 
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50/50">
               <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Name</th>
+              <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">ID</th>
               <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">License</th>
               <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vehicle</th>
               <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</th>
@@ -46,6 +47,9 @@ export function DriversTable({ drivers, loading, onView, onEdit, onCreateClick, 
               >
                 <td className="px-4 py-3">
                   <span className="font-semibold text-slate-800">{driver.name}</span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className="font-mono text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">{driver.driverId || "—"}</span>
                 </td>
                 <td className="px-4 py-3 text-slate-500 font-mono text-xs">{driver.licenseNumber}</td>
                 <td className="px-4 py-3 text-slate-500">{driver.assignedVehicle}</td>

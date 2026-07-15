@@ -35,11 +35,13 @@ export function DriversPage() {
         if (!mounted) return;
         const mapped: Driver[] = data.map((d) => ({
           id: d._id,
+          driverId: d.driverId,
           name: d.name,
           email: "",
           phone: d.phone,
           licenseNumber: d.licenseNumber,
           assignedVehicle: d.vehicleNumber,
+          telegramId: d.telegramId,
           status: toUiStatus(d.status),
           assignedShipments: 0,
           rating: 0,
@@ -69,11 +71,13 @@ export function DriversPage() {
       .then((data) => {
         const mapped: Driver[] = data.map((d) => ({
           id: d._id,
+          driverId: d.driverId,
           name: d.name,
           email: "",
           phone: d.phone,
           licenseNumber: d.licenseNumber,
           assignedVehicle: d.vehicleNumber,
+          telegramId: d.telegramId,
           status: toUiStatus(d.status),
           assignedShipments: 0,
           rating: 0,
@@ -95,11 +99,13 @@ export function DriversPage() {
       });
       const newDriver: Driver = {
         id: apiDriver._id,
+        driverId: apiDriver.driverId,
         name: apiDriver.name,
         email: "",
         phone: apiDriver.phone,
         licenseNumber: apiDriver.licenseNumber,
         assignedVehicle: apiDriver.vehicleNumber,
+        telegramId: apiDriver.telegramId,
         status: toUiStatus(apiDriver.status),
         assignedShipments: 0,
         rating: 0,

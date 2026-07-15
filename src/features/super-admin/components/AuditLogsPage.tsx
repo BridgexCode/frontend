@@ -1,29 +1,42 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, RotateCw, Filter, ChevronDown, Activity } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Search, RotateCw, Filter, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MOCK_AUDIT_LOGS, STATUS_BADGE } from "../services/mock-data";
-import type { AuditLog } from "../types";
+import { fetchAuditLogsApi, AuditLog } from "../services/admin-audit-api";
+import { STATUS_BADGE } from "../services/mock-data";
 import { TableSkeleton } from "@/features/manager/components/TableSkeleton";
 
 const EVENT_ICONS: Record<string, string> = {
   "Organization Created": "🏢",
   "User Role Changed": "🔄",
   "Organization Suspended": "❌",
+  "Organization Activated": "✅",
   "Shipment Delivered": "📦",
   "User Login Failed": "🔑",
   "System Backup Completed": "⚙️",
   "New Plan Upgraded": "⭐",
   "API Rate Limit Exceeded": "⚠️",
+  "System Settings Updated": "⚙️",
 };
 
 export function AuditLogsPage() {
-  const [logs] = useState<AuditLog[]>(MOCK_AUDIT_LOGS);
+  const [logs, setLogs] = useState<AuditLog[]>([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+
+  const loadLogs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchAuditLogsApi({ search, type: typeFilter === "ALL" ? undefined : typeFilter });
+      setLogs(data);
+    } catch {}
+    setLoading(false);
+  }, [search, typeFilter]);
+
+  useEffect(() => { loadLogs(); }, [loadLogs]);
 
   const filtered = useMemo(() => {
     return logs.filter((log) => {
@@ -35,11 +48,6 @@ export function AuditLogsPage() {
       return matchesSearch && matchesType;
     });
   }, [logs, search, typeFilter]);
-
-  const handleRefresh = () => {
-    setLoading(true);
-    setTimeout(() => setLoading(false), 800);
-  };
 
   return (
     <div className="space-y-6">
@@ -73,7 +81,7 @@ export function AuditLogsPage() {
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? "rotate-180" : ""}`} />
           </button>
           <button
-            onClick={handleRefresh}
+            onClick={loadLogs}
             className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
           >
             <RotateCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -139,6 +147,9 @@ export function AuditLogsPage() {
               )}
             </motion.div>
           ))}
+          {filtered.length === 0 && (
+            <div className="text-center py-10 text-slate-400 text-sm">No audit logs found.</div>
+          )}
         </div>
       )}
     </div>

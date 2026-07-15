@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { Clock, ChevronDown } from "lucide-react";
-import { MOCK_SHIPMENTS } from "@/features/manager/services/mock-data";
 
 interface TimelineFilterProps {
   shipmentFilter: string;
   onShipmentFilterChange: (value: string) => void;
+  shipmentIds: string[];
 }
 
-export function TimelineFilter({ shipmentFilter, onShipmentFilterChange }: TimelineFilterProps) {
+export function TimelineFilter({ shipmentFilter, onShipmentFilterChange, shipmentIds }: TimelineFilterProps) {
   const [showFilters, setShowFilters] = useState(false);
 
   return (
@@ -29,8 +29,8 @@ export function TimelineFilter({ shipmentFilter, onShipmentFilterChange }: Timel
           className="mt-3 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-600 bg-white font-medium cursor-pointer"
         >
           <option value="ALL">All Shipments</option>
-          {MOCK_SHIPMENTS.map((s) => (
-            <option key={s.id} value={s.id}>{s.trackingId}</option>
+          {shipmentIds.filter((id) => id !== "ALL").map((id) => (
+            <option key={id} value={id}>{id}</option>
           ))}
         </select>
       )}
