@@ -77,7 +77,6 @@ export function ManagerSidebar() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-slate-900 truncate">{user?.name || "Manager"}</p>
-            <p className="text-[10px] text-slate-400 truncate">{user?.email || ""}</p>
           </div>
           <button onClick={handleLogout} className="p-1 rounded-lg hover:bg-red-50 transition-colors" title="Logout">
             <LogOut className="w-4 h-4 shrink-0 text-slate-300 hover:text-red-500 transition-colors" />

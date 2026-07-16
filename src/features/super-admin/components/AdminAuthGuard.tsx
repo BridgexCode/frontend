@@ -16,7 +16,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     if (!isAuthenticated || !getStoredToken()) {
       router.replace("/admin/login");
     } else if (user?.role !== "SUPER_ADMIN") {
-      router.replace("/login");
+      router.replace("/admin/login");
     }
   }, [isLoading, isAuthenticated, user, router]);
 
