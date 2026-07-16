@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { WorkersHeader } from "@/features/manager/components/WorkersHeader";
 import { WorkersTable } from "@/features/manager/components/WorkersTable";
 import { CreateWorkerModal } from "@/features/manager/components/CreateWorkerModal";
@@ -31,7 +32,6 @@ export default function WorkersPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState<NewWorkerForm>({ name: "", email: "", phone: "", password: "" });
   const [formErrors, setFormErrors] = useState<Partial<NewWorkerForm>>({});
-  const [apiError, setApiError] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -71,7 +71,6 @@ export default function WorkersPage() {
     if (!validate()) return;
 
     try {
-      setApiError("");
       const created = await createWorkerApi({ name: form.name, phone: form.phone });
       const newWorker: UIWorker = {
         id: created.id,
@@ -88,8 +87,7 @@ export default function WorkersPage() {
       setShowCreateModal(false);
     } catch (err: any) {
       const message = err?.response?.data?.error || err?.response?.data?.message || err.message || "Something went wrong";
-      setApiError(message);
-      console.error("Create worker failed", err);
+      toast.error(message);
     }
   };
 
@@ -97,8 +95,9 @@ export default function WorkersPage() {
     try {
       await toggleActiveWorkerApi(worker.id);
       setWorkers((prev) => prev.map((w) => w.id === worker.id ? { ...w, status: w.status === "ACTIVE" ? "INACTIVE" as const : "ACTIVE" as const } : w));
+      toast.success("Worker status updated");
     } catch (err) {
-      console.error("Toggle failed", err);
+      toast.error("Failed to toggle worker status");
     }
   }, []);
 
@@ -107,8 +106,9 @@ export default function WorkersPage() {
     try {
       await deleteWorkerApi(worker.id);
       setWorkers((prev) => prev.filter((w) => w.id !== worker.id));
+      toast.success("Worker deleted");
     } catch (err) {
-      console.error("Delete failed", err);
+      toast.error("Failed to delete worker");
     }
   }, []);
 
@@ -120,11 +120,10 @@ export default function WorkersPage() {
         open={showCreateModal}
         form={form}
         formErrors={formErrors}
-        apiError={apiError}
         showPassword={showPassword}
         onFormChange={setForm}
         onShowPasswordChange={setShowPassword}
-        onClose={() => { setShowCreateModal(false); setFormErrors({}); setApiError(""); }}
+        onClose={() => { setShowCreateModal(false); setFormErrors({}); }}
         onSubmit={handleCreate}
       />
     </div>

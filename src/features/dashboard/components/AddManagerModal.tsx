@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { UserPlus, Pencil, X, Eye, EyeOff, Loader2 } from "lucide-react";
 import type { Manager } from "@/features/dashboard/services/mock-data";
 
@@ -44,7 +45,6 @@ export function AddManagerModal({ open, onClose, onSubmit, manager }: AddManager
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -69,17 +69,16 @@ export function AddManagerModal({ open, onClose, onSubmit, manager }: AddManager
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setApiError(null);
-
     if (onSubmit) {
       setSubmitting(true);
       try {
         await onSubmit(form);
         setForm({ name: "", email: "", phone: "", password: "" });
         setErrors({});
+        toast.success(isEdit ? "Manager updated" : "Manager created");
         onClose();
       } catch (err: any) {
-        setApiError(err.message || (isEdit ? "Failed to update manager" : "Failed to create manager"));
+        toast.error(err.message || (isEdit ? "Failed to update manager" : "Failed to create manager"));
       } finally {
         setSubmitting(false);
       }
@@ -94,7 +93,6 @@ export function AddManagerModal({ open, onClose, onSubmit, manager }: AddManager
     if (submitting) return;
     setForm({ name: "", email: "", phone: "", password: "" });
     setErrors({});
-    setApiError(null);
     onClose();
   };
 
@@ -158,12 +156,6 @@ export function AddManagerModal({ open, onClose, onSubmit, manager }: AddManager
                     </button>
                   </div>
                   {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
-                </div>
-              )}
-
-              {apiError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-xs font-semibold text-red-600">{apiError}</p>
                 </div>
               )}
 

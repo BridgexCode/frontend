@@ -4,7 +4,7 @@ export interface CreateDriverPayload {
   name: string;
   phone: string;
   licenseNumber: string;
-  vehicleNumber: string;
+  vehicleNumber?: string;
 }
 
 export interface ApiDriver {

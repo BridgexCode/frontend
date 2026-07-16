@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Building2, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 import { loginUser } from "@/features/auth/services/auth-api";
 import { setStoredToken } from "@/shared/lib/axios";
 import { useAuthStore } from "@/features/auth/store/auth-store";
@@ -13,15 +14,13 @@ export function ManagerLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!email || !password) {
-      setError("Please fill in all fields");
+      toast.error("Please fill in all fields");
       return;
     }
 
@@ -29,7 +28,7 @@ export function ManagerLoginForm() {
     try {
       const { user, token } = await loginUser(email, password);
       if (user.role !== "OPERATIONS_MANAGER") {
-        setError("Access denied. Operations Manager role required.");
+        toast.error("Access denied. Operations Manager role required.");
         setLoading(false);
         return;
       }
@@ -37,7 +36,7 @@ export function ManagerLoginForm() {
       useAuthStore.setState({ user, isAuthenticated: true });
       router.push("/manager/dashboard");
     } catch (err: any) {
-      setError(err?.response?.data?.error || "Invalid email or password");
+      toast.error(err?.response?.data?.error || "Invalid email or password");
       setLoading(false);
     }
   };
@@ -91,10 +90,6 @@ export function ManagerLoginForm() {
                 </button>
               </div>
             </div>
-
-            {error && (
-              <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
-            )}
 
             <button
               type="submit"

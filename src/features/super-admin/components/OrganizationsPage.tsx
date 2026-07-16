@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Search, RotateCw, Filter, ChevronDown, Eye, ToggleLeft, ToggleRight, Trash2, Building2 } from "lucide-react";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchOrganizationsApi, toggleOrganizationStatusApi, deleteOrganizationApi, Organization } from "../services/admin-orgs-api";
 import { STATUS_BADGE } from "../services/mock-data";
@@ -17,7 +18,6 @@ export function OrganizationsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
   const [adminEmail, setAdminEmail] = useState("");
-  const [error, setError] = useState("");
 
   useEffect(() => {
     setAdminEmail(getStoredEmail() || "admin@naxivo.com");
@@ -52,9 +52,9 @@ export function OrganizationsPage() {
       setOrgs((prev) =>
         prev.map((o) => (o._id === org._id ? { ...o, status: updated.status } : o)),
       );
-      setError("");
+      toast.success("Organization status updated");
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to toggle status");
+      toast.error(err.response?.data?.error || "Failed to toggle status");
     }
   };
 
@@ -63,6 +63,7 @@ export function OrganizationsPage() {
     try {
       await deleteOrganizationApi(org._id);
       setOrgs((prev) => prev.filter((o) => o._id !== org._id));
+      toast.success(`"${org.name}" deleted`);
     } catch {}
   };
 
@@ -128,9 +129,6 @@ export function OrganizationsPage() {
           )}
         </AnimatePresence>
 
-        {error && (
-          <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
-        )}
       </div>
 
       {loading ? (

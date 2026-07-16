@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import { AuthInit } from "@/features/auth/components/AuthInit";
 import "./globals.css";
 
@@ -60,7 +61,7 @@ export default function RootLayout({
       lang="en"
       className={`${plusJakartaSans.variable} ${inter.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><AuthInit>{children}</AuthInit></body>
+      <body className="min-h-full flex flex-col"><AuthInit>{children}</AuthInit><Toaster richColors position="top-right" /></body>
     </html>
   );
 }

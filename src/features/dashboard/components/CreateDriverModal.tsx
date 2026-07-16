@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { UserPlus, Pencil, X, Eye, EyeOff, Loader2 } from "lucide-react";
 import type { Driver } from "@/features/dashboard/services/mock-data";
 
@@ -43,7 +44,6 @@ export function CreateDriverModal({ open, onClose, onSubmit, driver }: CreateDri
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -63,16 +63,16 @@ export function CreateDriverModal({ open, onClose, onSubmit, driver }: CreateDri
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setApiError(null);
     if (onSubmit) {
       setSubmitting(true);
       try {
         await onSubmit(form);
         setForm(getInitialForm());
         setErrors({});
+        toast.success(isEdit ? "Driver updated" : "Driver created");
         onClose();
       } catch (err: unknown) {
-        setApiError(err instanceof Error ? err.message : (isEdit ? "Failed to update driver" : "Failed to create driver"));
+        toast.error(err instanceof Error ? err.message : (isEdit ? "Failed to update driver" : "Failed to create driver"));
       } finally {
         setSubmitting(false);
       }
@@ -87,7 +87,6 @@ export function CreateDriverModal({ open, onClose, onSubmit, driver }: CreateDri
     if (submitting) return;
     setForm(getInitialForm());
     setErrors({});
-    setApiError(null);
     onClose();
   };
 
@@ -156,12 +155,6 @@ export function CreateDriverModal({ open, onClose, onSubmit, driver }: CreateDri
                     </button>
                   </div>
                   {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
-                </div>
-              )}
-
-              {apiError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-xs font-semibold text-red-600">{apiError}</p>
                 </div>
               )}
 
