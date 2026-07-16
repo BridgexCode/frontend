@@ -10,7 +10,6 @@ interface UIDriver {
   name: string;
   phone: string;
   licenseNumber: string;
-  vehicleNumber: string;
   telegramId?: string;
   status: string;
 }
@@ -20,7 +19,7 @@ export default function ManagerDriversPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ name: "", phone: "", licenseNumber: "", vehicleNumber: "" });
+  const [form, setForm] = useState({ name: "", phone: "", licenseNumber: "" });
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
@@ -47,7 +46,7 @@ export default function ManagerDriversPage() {
     try {
       const created = await createDriverApi(form);
       setDrivers([created, ...drivers]);
-      setForm({ name: "", phone: "", licenseNumber: "", vehicleNumber: "" });
+      setForm({ name: "", phone: "", licenseNumber: "" });
       setShowCreate(false);
     } catch (err) {
       console.error("Create driver failed", err);
@@ -97,7 +96,6 @@ export default function ManagerDriversPage() {
                 <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Name</th>
                 <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Phone</th>
                 <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">License</th>
-                <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vehicle</th>
                 <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Telegram</th>
                 <th className="text-left px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Actions</th>
               </tr>
@@ -111,7 +109,6 @@ export default function ManagerDriversPage() {
                   <td className="px-4 py-3 font-semibold text-slate-800">{driver.name}</td>
                   <td className="px-4 py-3 text-slate-500">{driver.phone}</td>
                   <td className="px-4 py-3 text-slate-500 font-mono text-xs">{driver.licenseNumber}</td>
-                  <td className="px-4 py-3 text-slate-500">{driver.vehicleNumber || "—"}</td>
                   <td className="px-4 py-3">
                     {driver.telegramId ? (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">✅ Linked</span>
@@ -127,7 +124,7 @@ export default function ManagerDriversPage() {
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={7} className="text-center py-10 text-sm text-slate-400">No drivers found</td></tr>
+                <tr><td colSpan={6} className="text-center py-10 text-sm text-slate-400">No drivers found</td></tr>
               )}
             </tbody>
           </table>
@@ -152,10 +149,6 @@ export default function ManagerDriversPage() {
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700">License Number *</label>
                 <input type="text" placeholder="e.g. DL-07-2024-001" value={form.licenseNumber} onChange={(e) => setForm({ ...form, licenseNumber: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 font-medium" required />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Vehicle Number</label>
-                <input type="text" placeholder="e.g. KL-07-AB-1234" value={form.vehicleNumber} onChange={(e) => setForm({ ...form, vehicleNumber: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 font-medium" />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowCreate(false)} className="flex-1 border border-slate-200 hover:bg-slate-50 font-bold text-xs py-3 rounded-xl cursor-pointer">Cancel</button>

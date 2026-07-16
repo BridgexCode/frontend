@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Building2, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { loginUser } from "@/features/auth/services/auth-api";
+import { setStoredToken } from "@/shared/lib/axios";
+import { useAuthStore } from "@/features/auth/store/auth-store";
 
 export function ManagerLoginForm() {
   const router = useRouter();
@@ -25,12 +27,14 @@ export function ManagerLoginForm() {
 
     setLoading(true);
     try {
-      const { user } = await loginUser(email, password);
+      const { user, token } = await loginUser(email, password);
       if (user.role !== "OPERATIONS_MANAGER") {
         setError("Access denied. Operations Manager role required.");
         setLoading(false);
         return;
       }
+      setStoredToken(token);
+      useAuthStore.setState({ user, isAuthenticated: true });
       router.push("/manager/dashboard");
     } catch (err: any) {
       setError(err?.response?.data?.error || "Invalid email or password");

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuthStore } from "@/features/auth/store/auth-store";
 import {
   LayoutDashboard, Users, UserCheck, Package, Clock,
   AlertTriangle, BarChart3, Settings, ChevronDown,
@@ -24,7 +25,16 @@ const sidebarItems = [
 
 export function ManagerSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const logout = useAuthStore((s) => s.logout);
+  const user = useAuthStore((s) => s.user);
+
+  const handleLogout = async () => {
+    setMobileOpen(false);
+    await logout();
+    router.push("/manager/login");
+  };
 
   const isActive = (href: string) => pathname === href;
 
@@ -63,13 +73,15 @@ export function ManagerSidebar() {
       <div className="p-3 border-t border-slate-100">
         <div className="flex items-center gap-3 px-3 py-2.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
           <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 text-xs font-bold">
-            DM
+            {user?.name?.charAt(0)?.toUpperCase() || "M"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900 truncate">Divya Menon</p>
-            <p className="text-[10px] text-slate-400 truncate">divya@naxivo.com</p>
+            <p className="text-sm font-bold text-slate-900 truncate">{user?.name || "Manager"}</p>
+            <p className="text-[10px] text-slate-400 truncate">{user?.email || ""}</p>
           </div>
-          <LogOut className="w-4 h-4 shrink-0 text-slate-300 hover:text-red-500 transition-colors" />
+          <button onClick={handleLogout} className="p-1 rounded-lg hover:bg-red-50 transition-colors" title="Logout">
+            <LogOut className="w-4 h-4 shrink-0 text-slate-300 hover:text-red-500 transition-colors" />
+          </button>
         </div>
       </div>
     </div>
@@ -91,9 +103,9 @@ export function ManagerSidebar() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 text-[10px] font-bold">
-            DM
-          </div>
+          <button onClick={handleLogout} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="Logout">
+            <LogOut className="w-4 h-4 text-slate-500 hover:text-red-500 transition-colors" />
+          </button>
         </div>
       </div>
 

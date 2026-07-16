@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Network, Eye, EyeOff, ArrowRight, ShieldAlert } from "lucide-react";
 import { loginApi } from "../services/admin-auth-api";
+import { useAuthStore } from "@/features/auth/store/auth-store";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export function AdminLoginForm() {
     try {
       const result = await loginApi({ email, password });
       if (result.user.role === "SUPER_ADMIN") {
+        useAuthStore.setState({ user: result.user, isAuthenticated: true, isLoading: false });
         router.push("/admin/dashboard");
       } else {
         setError("Access denied. Super Admin credentials required.");

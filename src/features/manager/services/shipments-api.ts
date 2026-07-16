@@ -110,6 +110,10 @@ export async function assignDriverApi(
   return res.data.data;
 }
 
+export async function deleteShipmentApi(id: string): Promise<void> {
+  await api.delete(`/api/shipments/${id}`);
+}
+
 export async function updateShipmentStatusApi(
   id: string,
   status: string,

@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { WorkersHeader } from "@/features/manager/components/WorkersHeader";
 import { WorkersTable } from "@/features/manager/components/WorkersTable";
 import { CreateWorkerModal } from "@/features/manager/components/CreateWorkerModal";
-import { fetchWorkersApi, createWorkerApi, toggleActiveWorkerApi } from "@/features/manager/services/workers-api";
+import { fetchWorkersApi, createWorkerApi, toggleActiveWorkerApi, deleteWorkerApi } from "@/features/manager/services/workers-api";
 
 interface UIWorker {
   id: string;
@@ -31,6 +31,7 @@ export default function WorkersPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState<NewWorkerForm>({ name: "", email: "", phone: "", password: "" });
   const [formErrors, setFormErrors] = useState<Partial<NewWorkerForm>>({});
+  const [apiError, setApiError] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -70,6 +71,7 @@ export default function WorkersPage() {
     if (!validate()) return;
 
     try {
+      setApiError("");
       const created = await createWorkerApi({ name: form.name, phone: form.phone });
       const newWorker: UIWorker = {
         id: created.id,
@@ -84,7 +86,9 @@ export default function WorkersPage() {
       setForm({ name: "", email: "", phone: "", password: "" });
       setFormErrors({});
       setShowCreateModal(false);
-    } catch (err) {
+    } catch (err: any) {
+      const message = err?.response?.data?.error || err?.response?.data?.message || err.message || "Something went wrong";
+      setApiError(message);
       console.error("Create worker failed", err);
     }
   };
@@ -98,18 +102,29 @@ export default function WorkersPage() {
     }
   }, []);
 
+  const handleDelete = useCallback(async (worker: UIWorker) => {
+    if (!window.confirm(`Delete worker "${worker.name}"?`)) return;
+    try {
+      await deleteWorkerApi(worker.id);
+      setWorkers((prev) => prev.filter((w) => w.id !== worker.id));
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
+  }, []);
+
   return (
     <div className="space-y-6">
       <WorkersHeader search={search} onSearchChange={setSearch} onCreateClick={() => setShowCreateModal(true)} />
-      <WorkersTable workers={filtered} loading={loading} onCreateClick={() => setShowCreateModal(true)} onToggleActive={handleToggleActive} />
+      <WorkersTable workers={filtered} loading={loading} onCreateClick={() => setShowCreateModal(true)} onToggleActive={handleToggleActive} onDelete={handleDelete} />
       <CreateWorkerModal
         open={showCreateModal}
         form={form}
         formErrors={formErrors}
+        apiError={apiError}
         showPassword={showPassword}
         onFormChange={setForm}
         onShowPasswordChange={setShowPassword}
-        onClose={() => { setShowCreateModal(false); setFormErrors({}); }}
+        onClose={() => { setShowCreateModal(false); setFormErrors({}); setApiError(""); }}
         onSubmit={handleCreate}
       />
     </div>

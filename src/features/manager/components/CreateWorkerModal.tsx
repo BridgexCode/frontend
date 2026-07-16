@@ -14,6 +14,7 @@ interface CreateWorkerModalProps {
   open: boolean;
   form: NewWorkerForm;
   formErrors: Partial<NewWorkerForm>;
+  apiError?: string;
   showPassword: boolean;
   onFormChange: (form: NewWorkerForm) => void;
   onShowPasswordChange: (value: boolean) => void;
@@ -22,7 +23,7 @@ interface CreateWorkerModalProps {
 }
 
 export function CreateWorkerModal({
-  open, form, formErrors, showPassword,
+  open, form, formErrors, apiError, showPassword,
   onFormChange, onShowPasswordChange, onClose, onSubmit,
 }: CreateWorkerModalProps) {
   return (
@@ -86,6 +87,9 @@ export function CreateWorkerModal({
                 {formErrors.password && <p className="text-xs text-red-500">{formErrors.password}</p>}
               </div>
 
+              {apiError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-medium px-4 py-2.5 rounded-xl">{apiError}</div>
+              )}
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => { onClose(); }} className="flex-1 border border-slate-200 hover:bg-slate-50 font-bold text-xs py-3 rounded-xl transition-all cursor-pointer">Cancel</button>
                 <button type="submit" className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 font-bold text-xs py-3 rounded-xl transition-all shadow-md shadow-emerald-600/10 cursor-pointer">Create Worker</button>

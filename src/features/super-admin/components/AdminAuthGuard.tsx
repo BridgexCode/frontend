@@ -9,18 +9,16 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (isLoading) return;
+    if (!isAuthenticated || !getStoredToken()) {
       router.replace("/admin/login");
+    } else if (user?.role !== "SUPER_ADMIN") {
+      router.replace("/login");
     }
-  }, [isLoading, isAuthenticated, router]);
-
-  useEffect(() => {
-    if (!getStoredToken()) {
-      router.replace("/admin/login");
-    }
-  }, [router]);
+  }, [isLoading, isAuthenticated, user, router]);
 
   if (isLoading) {
     return (
@@ -29,7 +27,7 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated || user?.role !== "SUPER_ADMIN") return null;
 
   return <>{children}</>;
 }
