@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { fetchVehiclesApi, createVehicleApi, deleteVehicleApi } from "@/features/manager/services/vehicles-api";
-import { Search, Plus, Trash2, Loader2 } from "lucide-react";
+import { fetchVehiclesApi, createVehicleApi, updateVehicleApi, deleteVehicleApi } from "@/features/manager/services/vehicles-api";
+import { Search, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Loader2 } from "lucide-react";
 
 interface UIVehicle {
   _id: string;
@@ -24,6 +24,7 @@ export default function ManagerVehiclesPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<UIVehicle | null>(null);
   const [form, setForm] = useState({ vehicleNumber: "", vehicleModel: "", type: "truck" as string });
   const [creating, setCreating] = useState(false);
 
@@ -54,6 +55,41 @@ export default function ManagerVehiclesPage() {
       setShowCreate(false);
     } catch (err) {
       console.error("Create vehicle failed", err);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleStatusToggle = async (vehicle: UIVehicle) => {
+    const nextStatus =
+      vehicle.status === "available" ? "maintenance" :
+      vehicle.status === "maintenance" ? "inactive" :
+      vehicle.status === "inactive" ? "available" :
+      "maintenance";
+    try {
+      const updated = await updateVehicleApi(vehicle._id, { status: nextStatus } as any);
+      setVehicles((prev) => prev.map((v) => v._id === vehicle._id ? { ...v, status: updated.status } : v));
+    } catch (err) {
+      console.error("Status update failed", err);
+    }
+  };
+
+  const handleEdit = (vehicle: UIVehicle) => {
+    setEditingVehicle(vehicle);
+    setForm({ vehicleNumber: vehicle.vehicleNumber, vehicleModel: vehicle.vehicleModel, type: vehicle.type });
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingVehicle || !form.vehicleNumber || !form.vehicleModel) return;
+    setCreating(true);
+    try {
+      const updated = await updateVehicleApi(editingVehicle._id, form as any);
+      setVehicles((prev) => prev.map((v) => v._id === editingVehicle._id ? { ...v, ...updated } : v));
+      setEditingVehicle(null);
+      setForm({ vehicleNumber: "", vehicleModel: "", type: "truck" });
+    } catch (err) {
+      console.error("Update failed", err);
     } finally {
       setCreating(false);
     }
@@ -113,9 +149,17 @@ export default function ManagerVehiclesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button onClick={() => handleDelete(vehicle._id)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer" title="Delete">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => handleEdit(vehicle)} className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all cursor-pointer" title="Edit">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleStatusToggle(vehicle)} className={`p-1.5 rounded-lg transition-all cursor-pointer ${vehicle.status === "inactive" ? "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" : "text-slate-400 hover:text-amber-600 hover:bg-amber-50"}`} title="Change Status">
+                        {vehicle.status === "inactive" ? <ToggleLeft className="w-4 h-4" /> : <ToggleRight className="w-4 h-4" />}
+                      </button>
+                      <button onClick={() => handleDelete(vehicle._id)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer" title="Delete">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -127,13 +171,13 @@ export default function ManagerVehiclesPage() {
         </div>
       </div>
 
-      {showCreate && (
+      {(showCreate || editingVehicle) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div onClick={() => setShowCreate(false)} className="absolute inset-0 bg-black opacity-50" />
+          <div onClick={() => { setShowCreate(false); setEditingVehicle(null); setForm({ vehicleNumber: "", vehicleModel: "", type: "truck" }); }} className="absolute inset-0 bg-black opacity-50" />
           <div className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-lg z-10 shadow-2xl relative">
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Add New Vehicle</h3>
-            <p className="text-xs text-slate-400 mb-6">Register a new vehicle to the fleet.</p>
-            <form onSubmit={handleCreate} className="space-y-4">
+            <h3 className="text-lg font-bold text-slate-900 mb-1">{editingVehicle ? "Edit Vehicle" : "Add New Vehicle"}</h3>
+            <p className="text-xs text-slate-400 mb-6">{editingVehicle ? "Update vehicle details." : "Register a new vehicle to the fleet."}</p>
+            <form onSubmit={editingVehicle ? handleUpdate : handleCreate} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-700">Vehicle Number *</label>
                 <input type="text" placeholder="e.g. KL-07-AB-1234" value={form.vehicleNumber} onChange={(e) => setForm({ ...form, vehicleNumber: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 font-medium" required />
@@ -152,10 +196,10 @@ export default function ManagerVehiclesPage() {
                 </select>
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowCreate(false)} className="flex-1 border border-slate-200 hover:bg-slate-50 font-bold text-xs py-3 rounded-xl cursor-pointer">Cancel</button>
+                <button type="button" onClick={() => { setShowCreate(false); setEditingVehicle(null); setForm({ vehicleNumber: "", vehicleModel: "", type: "truck" }); }} className="flex-1 border border-slate-200 hover:bg-slate-50 font-bold text-xs py-3 rounded-xl cursor-pointer">Cancel</button>
                 <button type="submit" disabled={creating} className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 font-bold text-xs py-3 rounded-xl cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2">
                   {creating && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {creating ? "Adding..." : "Add Vehicle"}
+                  {creating ? "Saving..." : editingVehicle ? "Update Vehicle" : "Add Vehicle"}
                 </button>
               </div>
             </form>

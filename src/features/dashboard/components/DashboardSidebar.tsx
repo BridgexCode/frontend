@@ -45,19 +45,6 @@ function SidebarContent({ activeSection = "dashboard" }: { activeSection?: strin
       </nav>
 
       <div className="space-y-4 pt-6 border-t border-slate-100 mt-6">
-        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer hover:bg-slate-100/70 transition-colors">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-              <Building2 className="w-4 h-4" />
-            </div>
-            <div className="text-left">
-              <p className="text-xs font-bold text-slate-800 leading-none">SpeedX Logistics</p>
-              <p className="text-[9px] font-medium text-slate-400 mt-0.5">Org Admin</p>
-            </div>
-          </div>
-          <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-        </div>
-
         <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/50 border border-slate-100">
           <HelpCircle className="w-4.5 h-4.5 text-slate-400 shrink-0" />
           <div>

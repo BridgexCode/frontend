@@ -3,7 +3,7 @@ import { AuthGuard } from "@/features/auth/components/AuthGuard";
 
 export default function ManagerLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AuthGuard loginPath="/login">
+    <AuthGuard loginPath="/manager/login" allowedRoles={["OPERATIONS_MANAGER"]}>
       <div className="min-h-screen bg-slate-50">
         <ManagerSidebar />
         <div className="lg:ml-64 pt-14 lg:pt-0 min-h-screen">

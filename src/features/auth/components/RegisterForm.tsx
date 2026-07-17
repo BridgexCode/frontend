@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   Building2, User, Mail, Phone, Lock, Globe, Clock,
   ShieldCheck, Eye, EyeOff, Network, AlertCircle,
@@ -87,7 +88,7 @@ export function RegisterForm() {
       await register({ orgName, adminName, email, phone, country, timezone, password });
       router.push("/dashboard");
     } catch (err) {
-      setErrors({ form: err instanceof Error ? err.message : "Registration failed" });
+      toast.error(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -160,13 +161,6 @@ export function RegisterForm() {
                 <p className="text-xs text-slate-400 font-medium mt-0.5">Create your organization account to get started</p>
               </div>
             </div>
-
-            {errors.form && (
-              <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-100 rounded-xl">
-                <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
-                <p className="text-xs font-bold text-red-600">{errors.form}</p>
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-5">

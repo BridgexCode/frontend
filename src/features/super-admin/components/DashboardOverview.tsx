@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { Building2, Activity, TrendingUp, Clock, Users, Package, Mail } from "lucide-react";
 import { fetchDashboardStatsApi, DashboardStats } from "../services/admin-dashboard-api";
 import { getStoredEmail } from "@/shared/lib/axios";
@@ -9,7 +10,6 @@ import { getStoredEmail } from "@/shared/lib/axios";
 export function DashboardOverview() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export function DashboardOverview() {
       .then(setStats)
       .catch((err) => {
         const msg = err.response?.data?.error || err.message || "Failed to load dashboard stats";
-        setError(msg);
+        toast.error(msg);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -41,7 +41,7 @@ export function DashboardOverview() {
   }
 
   if (!stats) {
-    return <div className="text-center py-10 text-slate-400">{error || "Failed to load dashboard stats."}</div>;
+    return <div className="text-center py-10 text-slate-400">Failed to load dashboard stats.</div>;
   }
 
   return (

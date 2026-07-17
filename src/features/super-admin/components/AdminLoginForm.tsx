@@ -4,22 +4,23 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Network, Eye, EyeOff, ArrowRight, ShieldAlert } from "lucide-react";
+import { toast } from "sonner";
 import { loginApi } from "../services/admin-auth-api";
+import type { UserRole } from "@/features/auth/types";
+import { useAuthStore } from "@/features/auth/store/auth-store";
 
 export function AdminLoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!email || !password) {
-      setError("Please fill in all fields");
+      toast.error("Please fill in all fields");
       return;
     }
 
@@ -28,12 +29,13 @@ export function AdminLoginForm() {
     try {
       const result = await loginApi({ email, password });
       if (result.user.role === "SUPER_ADMIN") {
+        useAuthStore.setState({ user: { ...result.user, role: result.user.role as UserRole }, isAuthenticated: true, isLoading: false });
         router.push("/admin/dashboard");
       } else {
-        setError("Access denied. Super Admin credentials required.");
+        toast.error("Access denied. Super Admin credentials required.");
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Invalid credentials. Please try again.");
+      toast.error(err.response?.data?.error || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -88,10 +90,6 @@ export function AdminLoginForm() {
                 </button>
               </div>
             </div>
-
-            {error && (
-              <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
-            )}
 
             <button
               type="submit"

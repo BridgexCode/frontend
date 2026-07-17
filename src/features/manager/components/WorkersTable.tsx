@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Eye, Edit2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Eye, Edit2, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 import { STATUS_BADGE_MAP } from "@/features/manager/services/mock-data";
 import { TableSkeleton } from "./TableSkeleton";
 import { EmptyState } from "./EmptyState";
@@ -21,9 +21,10 @@ interface WorkersTableProps {
   loading: boolean;
   onCreateClick: () => void;
   onToggleActive?: (worker: UIWorker) => void;
+  onDelete?: (worker: UIWorker) => void;
 }
 
-export function WorkersTable({ workers, loading, onCreateClick, onToggleActive }: WorkersTableProps) {
+export function WorkersTable({ workers, loading, onCreateClick, onToggleActive, onDelete }: WorkersTableProps) {
   if (loading) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><TableSkeleton rows={5} columns={6} /></div>;
   if (workers.length === 0) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><EmptyState title="No workers found" message="There are no workers matching your search." action={{ label: "Create Worker", onClick: onCreateClick }} /></div>;
 
@@ -71,6 +72,11 @@ export function WorkersTable({ workers, loading, onCreateClick, onToggleActive }
                     {onToggleActive && (
                       <button onClick={() => onToggleActive(worker)} className={`p-1.5 rounded-lg transition-all cursor-pointer ${worker.status === "ACTIVE" ? "text-slate-400 hover:text-red-600 hover:bg-red-50" : "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"}`} title={worker.status === "ACTIVE" ? "Deactivate" : "Activate"}>
                         {worker.status === "ACTIVE" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button onClick={() => onDelete(worker)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer" title="Delete">
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     )}
                   </div>

@@ -9,7 +9,7 @@ import { ShipmentsTable } from "@/features/manager/components/ShipmentsTable";
 import { CreateShipmentModal } from "@/features/manager/components/CreateShipmentModal";
 import { AssignShipmentModal } from "@/features/manager/components/AssignShipmentModal";
 import { EditShipmentModal } from "@/features/manager/components/EditShipmentModal";
-import { fetchShipmentsApi, createShipmentApi, assignDriverApi, updateShipmentApi, updateShipmentStatusApi, mapStatus, toBackendStatus } from "@/features/manager/services/shipments-api";
+import { fetchShipmentsApi, createShipmentApi, assignDriverApi, updateShipmentApi, deleteShipmentApi, updateShipmentStatusApi, mapStatus, toBackendStatus } from "@/features/manager/services/shipments-api";
 import { fetchDriversApi } from "@/features/manager/services/drivers-api";
 import { fetchVehiclesApi } from "@/features/manager/services/vehicles-api";
 
@@ -190,6 +190,16 @@ export default function ShipmentsPage() {
     }
   }, [shipments]);
 
+  const handleDelete = useCallback(async (id: string) => {
+    if (!confirm("Are you sure you want to delete this shipment?")) return;
+    try {
+      await deleteShipmentApi(id);
+      setShipments((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      console.error("Delete shipment failed", err);
+    }
+  }, []);
+
   const handleEditSubmit = useCallback(async (id: string, data: { pickup: string; delivery: string; customerName: string; notes: string }) => {
     try {
       await updateShipmentApi(id, {
@@ -213,7 +223,7 @@ export default function ShipmentsPage() {
     <div className="space-y-6">
       <ShipmentsHeader onAssignClick={() => setShowAssignModal(true)} onCreateClick={() => setShowCreateModal(true)} />
       <ShipmentsFilters search={search} onSearchChange={setSearch} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} />
-      <ShipmentsTable shipments={filtered} loading={loading} onCreateClick={() => setShowCreateModal(true)} onView={handleView} onEdit={handleEdit} onStatusUpdate={handleStatusUpdate} />
+      <ShipmentsTable shipments={filtered} loading={loading} onCreateClick={() => setShowCreateModal(true)} onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onStatusUpdate={handleStatusUpdate} />
       <CreateShipmentModal open={showCreateModal} form={form} onFormChange={setForm} onClose={() => setShowCreateModal(false)} onSubmit={handleCreateShipment} drivers={drivers} vehicles={vehicles} />
       <AssignShipmentModal open={showAssignModal} unassignedShipments={unassignedShipments} drivers={drivers} vehicles={vehicles} selectedShipment={selectedShipment} selectedDriver={selectedDriver} selectedVehicle={selectedVehicle} onShipmentChange={setSelectedShipment} onDriverChange={setSelectedDriver} onVehicleChange={setSelectedVehicle} onClose={() => { setShowAssignModal(false); setSelectedShipment(""); setSelectedDriver(""); setSelectedVehicle(""); }} onAssign={handleAssign} />
       <EditShipmentModal open={!!editingShipment} shipment={editingShipment} onClose={() => setEditingShipment(null)} onSubmit={handleEditSubmit} />

@@ -13,7 +13,7 @@ export interface User {
   role: UserRole;
   avatarUrl?: string;
   phoneNumber?: string;
-  organizationId: string;
+  organizationId?: string;
   createdAt: string;
 }
 

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { WorkersHeader } from "@/features/manager/components/WorkersHeader";
 import { WorkersTable } from "@/features/manager/components/WorkersTable";
 import { CreateWorkerModal } from "@/features/manager/components/CreateWorkerModal";
-import { fetchWorkersApi, createWorkerApi, toggleActiveWorkerApi } from "@/features/manager/services/workers-api";
+import { fetchWorkersApi, createWorkerApi, toggleActiveWorkerApi, deleteWorkerApi } from "@/features/manager/services/workers-api";
 
 interface UIWorker {
   id: string;
@@ -84,8 +85,9 @@ export default function WorkersPage() {
       setForm({ name: "", email: "", phone: "", password: "" });
       setFormErrors({});
       setShowCreateModal(false);
-    } catch (err) {
-      console.error("Create worker failed", err);
+    } catch (err: any) {
+      const message = err?.response?.data?.error || err?.response?.data?.message || err.message || "Something went wrong";
+      toast.error(message);
     }
   };
 
@@ -93,15 +95,27 @@ export default function WorkersPage() {
     try {
       await toggleActiveWorkerApi(worker.id);
       setWorkers((prev) => prev.map((w) => w.id === worker.id ? { ...w, status: w.status === "ACTIVE" ? "INACTIVE" as const : "ACTIVE" as const } : w));
+      toast.success("Worker status updated");
     } catch (err) {
-      console.error("Toggle failed", err);
+      toast.error("Failed to toggle worker status");
+    }
+  }, []);
+
+  const handleDelete = useCallback(async (worker: UIWorker) => {
+    if (!window.confirm(`Delete worker "${worker.name}"?`)) return;
+    try {
+      await deleteWorkerApi(worker.id);
+      setWorkers((prev) => prev.filter((w) => w.id !== worker.id));
+      toast.success("Worker deleted");
+    } catch (err) {
+      toast.error("Failed to delete worker");
     }
   }, []);
 
   return (
     <div className="space-y-6">
       <WorkersHeader search={search} onSearchChange={setSearch} onCreateClick={() => setShowCreateModal(true)} />
-      <WorkersTable workers={filtered} loading={loading} onCreateClick={() => setShowCreateModal(true)} onToggleActive={handleToggleActive} />
+      <WorkersTable workers={filtered} loading={loading} onCreateClick={() => setShowCreateModal(true)} onToggleActive={handleToggleActive} onDelete={handleDelete} />
       <CreateWorkerModal
         open={showCreateModal}
         form={form}

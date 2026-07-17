@@ -5,22 +5,22 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "../store/auth-store";
 import { getStoredToken } from "@/shared/lib/axios";
 
-export function AuthGuard({ children, loginPath = "/login" }: { children: React.ReactNode; loginPath?: string }) {
+export function AuthGuard({ children, loginPath = "/login", allowedRoles }: { children: React.ReactNode; loginPath?: string; allowedRoles?: string[] }) {
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (isLoading) return;
+    if (!isAuthenticated || !getStoredToken()) {
+      router.replace(loginPath);
+      return;
+    }
+    if (allowedRoles && user && !allowedRoles.includes(user.role)) {
       router.replace(loginPath);
     }
-  }, [isLoading, isAuthenticated, router, loginPath]);
-
-  useEffect(() => {
-    if (!getStoredToken()) {
-      router.replace(loginPath);
-    }
-  }, [router, loginPath]);
+  }, [isLoading, isAuthenticated, user, allowedRoles, router, loginPath]);
 
   if (isLoading) {
     return (
@@ -30,6 +30,7 @@ export function AuthGuard({ children, loginPath = "/login" }: { children: React.
     );
   }
   if (!isAuthenticated) return null;
+  if (allowedRoles && user && !allowedRoles.includes(user.role)) return null;
 
   return <>{children}</>;
 }

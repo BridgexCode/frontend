@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Eye, Edit2 } from "lucide-react";
+import { Eye, Edit2, Trash2 } from "lucide-react";
 import { STATUS_BADGE_MAP } from "@/features/manager/services/mock-data";
 import { TableSkeleton } from "./TableSkeleton";
 import { EmptyState } from "./EmptyState";
@@ -24,10 +24,11 @@ interface ShipmentsTableProps {
   onCreateClick: () => void;
   onView?: (id: string) => void;
   onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
   onStatusUpdate: (id: string, newStatus: string) => void;
 }
 
-export function ShipmentsTable({ shipments, loading, onCreateClick, onView, onEdit, onStatusUpdate }: ShipmentsTableProps) {
+export function ShipmentsTable({ shipments, loading, onCreateClick, onView, onEdit, onDelete, onStatusUpdate }: ShipmentsTableProps) {
   if (loading) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><TableSkeleton rows={6} columns={7} /></div>;
   if (shipments.length === 0) return <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden"><EmptyState title="No shipments found" message="Try adjusting your filters or create a new shipment." action={{ label: "Create Shipment", onClick: onCreateClick }} /></div>;
 
@@ -85,6 +86,9 @@ export function ShipmentsTable({ shipments, loading, onCreateClick, onView, onEd
                     </button>
                     <button onClick={() => onEdit?.(shipment.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all cursor-pointer" title="Edit">
                       <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => onDelete?.(shipment.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer" title="Delete">
+                      <Trash2 className="w-4 h-4" />
                     </button>
                       <select
                         value={shipment.status}

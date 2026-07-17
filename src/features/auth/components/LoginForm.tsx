@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import {
   Mail,
   Lock,
@@ -53,7 +54,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       await onLogin(email, password);
       setIsSuccess(true);
     } catch (err) {
-      setErrors({ form: err instanceof Error ? err.message : "Login failed" });
+      toast.error(err instanceof Error ? err.message : "Login failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -131,13 +132,6 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                     <p className="text-xs text-slate-400 font-medium mt-0.5">Enter your credentials to access your account</p>
                   </div>
                 </div>
-
-                {errors.form && (
-                  <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-100 rounded-xl">
-                    <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
-                    <p className="text-xs font-bold text-red-600">{errors.form}</p>
-                  </div>
-                )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-1.5">

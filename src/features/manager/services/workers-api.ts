@@ -36,3 +36,7 @@ export async function toggleActiveWorkerApi(
   const res = await api.patch(`/api/users/${id}/toggle-active`);
   return res.data.data;
 }
+
+export async function deleteWorkerApi(id: string): Promise<void> {
+  await api.patch(`/api/users/${id}/soft-delete`);
+}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { PlusCircle, Pencil, X, Loader2 } from "lucide-react";
 import type { Vehicle } from "@/features/dashboard/services/mock-data";
 
@@ -39,7 +40,6 @@ export function CreateVehicleModal({ open, onClose, onSubmit, vehicle }: CreateV
   const [form, setForm] = useState<VehicleFormData>(getInitialForm(vehicle));
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
@@ -53,16 +53,16 @@ export function CreateVehicleModal({ open, onClose, onSubmit, vehicle }: CreateV
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setApiError(null);
     if (onSubmit) {
       setSubmitting(true);
       try {
         await onSubmit(form);
         setForm(getInitialForm());
         setErrors({});
+        toast.success(isEdit ? "Vehicle updated" : "Vehicle added");
         onClose();
       } catch (err: unknown) {
-        setApiError(err instanceof Error ? err.message : (isEdit ? "Failed to update vehicle" : "Failed to add vehicle"));
+        toast.error(err instanceof Error ? err.message : (isEdit ? "Failed to update vehicle" : "Failed to add vehicle"));
       } finally {
         setSubmitting(false);
       }
@@ -77,7 +77,6 @@ export function CreateVehicleModal({ open, onClose, onSubmit, vehicle }: CreateV
     if (submitting) return;
     setForm(getInitialForm());
     setErrors({});
-    setApiError(null);
     onClose();
   };
 
@@ -133,12 +132,6 @@ export function CreateVehicleModal({ open, onClose, onSubmit, vehicle }: CreateV
                   className={`w-full border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-100 font-medium disabled:bg-slate-50 ${errors.capacity ? "border-red-400" : "border-slate-200 focus:border-emerald-600"}`} />
                 {errors.capacity && <p className="text-xs text-red-500 mt-1">{errors.capacity}</p>}
               </div>
-
-              {apiError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-xs font-semibold text-red-600">{apiError}</p>
-                </div>
-              )}
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={handleClose} disabled={submitting} className="flex-1 border border-slate-200 hover:bg-slate-50 font-bold text-xs py-3 rounded-xl cursor-pointer disabled:opacity-50">Cancel</button>

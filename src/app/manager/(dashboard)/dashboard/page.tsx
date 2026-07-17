@@ -37,7 +37,7 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <DashboardWelcome />
+      <DashboardWelcome activeShipments={stats.activeShipments} />
       <DashboardStatsGrid loading={loading} stats={stats} />
       <DashboardQuickActions />
       <DashboardRecentActivity activities={activities} />
