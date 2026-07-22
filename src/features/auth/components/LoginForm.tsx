@@ -17,6 +17,7 @@ import {
   AlertCircle,
   LogIn,
 } from "lucide-react";
+import { startGoogleLogin } from "../services/google-auth";
 
 interface LoginFormProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -56,6 +57,16 @@ export function LoginForm({ onLogin }: LoginFormProps) {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Login failed");
     } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsSubmitting(true);
+    try {
+      await startGoogleLogin();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Google login failed");
       setIsSubmitting(false);
     }
   };
@@ -221,6 +232,24 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                   >
                     <LogIn className="w-4.5 h-4.5 group-hover:translate-x-0.5 transition-transform" />
                     <span>{isSubmitting ? "Signing In..." : "Sign In"}</span>
+                  </button>
+
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-slate-200" />
+                    <span className="text-[10px] font-bold uppercase text-slate-400">or</span>
+                    <div className="h-px flex-1 bg-slate-200" />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    disabled={isSubmitting}
+                    className="w-full border border-slate-200 bg-white text-slate-700 rounded-xl py-3.5 px-6 font-bold text-sm hover:border-slate-300 hover:bg-slate-50 active:scale-[0.99] transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+                  >
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 text-[13px] font-extrabold text-slate-700">
+                      G
+                    </span>
+                    <span>Continue with Google</span>
                   </button>
 
                   <div className="text-center pt-2">
