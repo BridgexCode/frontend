@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Building2, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { loginUser } from "@/features/auth/services/auth-api";
+import { startGoogleLogin } from "@/features/auth/services/google-auth";
 import { setStoredToken } from "@/shared/lib/axios";
 import { useAuthStore } from "@/features/auth/store/auth-store";
 
@@ -37,6 +38,16 @@ export function ManagerLoginForm() {
       router.push("/manager/dashboard");
     } catch (err: any) {
       toast.error(err?.response?.data?.error || "Invalid email or password");
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      await startGoogleLogin("manager");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Google login failed");
       setLoading(false);
     }
   };
@@ -103,6 +114,24 @@ export function ManagerLoginForm() {
                   Sign In <ArrowRight className="w-4 h-4" />
                 </>
               )}
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span className="text-[10px] font-bold uppercase text-slate-400">or</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+              className="w-full border border-slate-200 bg-white text-slate-700 font-bold text-sm py-3 rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 text-[13px] font-extrabold text-slate-700">
+                G
+              </span>
+              <span>Continue with Google</span>
             </button>
           </form>
         </div>
