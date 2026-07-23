@@ -86,7 +86,8 @@ export function RegisterForm() {
     setIsSubmitting(true);
     try {
       await register({ orgName, adminName, email, phone, country, timezone, password });
-      router.push("/dashboard");
+      // router.push("/dashboard");
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Registration failed");
     } finally {
