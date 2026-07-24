@@ -57,10 +57,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (data: RegisterData) => {
     set({ error: null, isLoading: true });
     try {
-      const res = await api.post("/api/auth/register-organization", data);
-      const { user, token } = res.data;
-      setStoredToken(token);
-      set({ user, isAuthenticated: true, isLoading: false });
+      await api.post("/api/auth/register-organization", data);
+      removeStoredToken();
+      set({ user: null, isAuthenticated: false, isLoading: false });
     } catch (err: unknown) {
       const message = axios.isAxiosError(err)
         ? err.response?.data?.error || "Registration failed"
