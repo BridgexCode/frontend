@@ -33,16 +33,18 @@ export default function ShipmentDetailPage() {
         if (mounted) setShipment(data);
         if (mounted) {
           Promise.all([
-            data.assignedDriverId ? fetchDriversApi() : Promise.resolve([]),
-            data.assignedVehicleId ? fetchVehiclesApi() : Promise.resolve([]),
+            data.assignedDriverId ? fetchDriversApi({ page: 1, limit: 100 }) : Promise.resolve({ data: [] }),
+            data.assignedVehicleId ? fetchVehiclesApi({ page: 1, limit: 100 }) : Promise.resolve({ data: [] }),
           ]).then(([allDrivers, allVehicles]) => {
             if (!mounted) return;
+            const driverList = Array.isArray(allDrivers) ? allDrivers : (allDrivers.data || []);
+            const vehicleList = Array.isArray(allVehicles) ? allVehicles : (allVehicles.data || []);
             if (data.assignedDriverId) {
-              const found = allDrivers.find((d: any) => d._id === data.assignedDriverId);
+              const found = driverList.find((d: any) => d._id === data.assignedDriverId);
               setDriver(found || null);
             }
             if (data.assignedVehicleId) {
-              const found = allVehicles.find((v: any) => v._id === data.assignedVehicleId);
+              const found = vehicleList.find((v: any) => v._id === data.assignedVehicleId);
               setVehicle(found || null);
             }
           }).catch(() => {});

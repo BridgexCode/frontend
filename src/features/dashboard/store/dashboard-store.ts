@@ -114,7 +114,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     set({ shipmentsLoading: true });
     try {
       const result = await fetchShipmentsApi({ page: 1, limit: 10 });
-      set({ recentShipments: result.data, shipmentsLoading: false });
+      const list = Array.isArray(result) ? result : (result.data || []);
+      set({ recentShipments: list, shipmentsLoading: false });
     } catch (err) {
       console.error("fetchRecentShipments error:", err);
       set({ shipmentsLoading: false });

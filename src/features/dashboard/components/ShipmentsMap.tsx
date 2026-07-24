@@ -25,7 +25,8 @@ export function ShipmentsMap() {
   useEffect(() => {
     let mounted = true;
     fetchShipmentsApi({ limit: 1 }).then((res) => {
-      if (mounted && res.data.length > 0) setShipment(res.data[0]);
+      const list = Array.isArray(res) ? res : (res.data || []);
+      if (mounted && list.length > 0) setShipment(list[0]);
     }).catch(() => {}).finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, []);

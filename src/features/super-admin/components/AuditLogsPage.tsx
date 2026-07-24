@@ -7,6 +7,8 @@ import { fetchAuditLogsApi, AuditLog } from "../services/admin-audit-api";
 import { STATUS_BADGE } from "../services/mock-data";
 import { TableSkeleton } from "@/features/manager/components/TableSkeleton";
 
+import { Pagination } from "@/shared/components/Pagination";
+
 const EVENT_ICONS: Record<string, string> = {
   "Organization Created": "🏢",
   "User Role Changed": "🔄",
@@ -24,30 +26,29 @@ export function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
 
-  const loadLogs = useCallback(async () => {
+  const loadLogs = useCallback(async (page: number = currentPage, type: string = typeFilter, searchStr: string = search) => {
     setLoading(true);
     try {
-      const data = await fetchAuditLogsApi({ search, type: typeFilter === "ALL" ? undefined : typeFilter });
-      setLogs(data);
+      const res = await fetchAuditLogsApi({
+        page,
+        limit: 3,
+        search: searchStr || undefined,
+        type: type === "ALL" ? undefined : type,
+      });
+      setLogs(res.data);
+      setTotalPages(res.totalPages || 1);
+      setTotalItems(res.total || 0);
     } catch {}
     setLoading(false);
-  }, [search, typeFilter]);
+  }, [currentPage, typeFilter, search]);
 
-  useEffect(() => { loadLogs(); }, [loadLogs]);
-
-  const filtered = useMemo(() => {
-    return logs.filter((log) => {
-      const matchesSearch =
-        log.event.toLowerCase().includes(search.toLowerCase()) ||
-        log.user.toLowerCase().includes(search.toLowerCase()) ||
-        log.description.toLowerCase().includes(search.toLowerCase());
-      const matchesType = typeFilter === "ALL" || log.type === typeFilter;
-      return matchesSearch && matchesType;
-    });
-  }, [logs, search, typeFilter]);
+  useEffect(() => { loadLogs(currentPage, typeFilter, search); }, [currentPage, typeFilter, search, loadLogs]);
 
   return (
     <div className="space-y-6">
@@ -68,7 +69,7 @@ export function AuditLogsPage() {
               type="text"
               placeholder="Search by action, admin, or details..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
               className="w-full border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 font-medium"
             />
           </div>
@@ -81,7 +82,7 @@ export function AuditLogsPage() {
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? "rotate-180" : ""}`} />
           </button>
           <button
-            onClick={loadLogs}
+            onClick={() => loadLogs(currentPage, typeFilter, search)}
             className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
           >
             <RotateCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -99,7 +100,7 @@ export function AuditLogsPage() {
             >
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Severity</label>
-                <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-600 bg-white font-medium cursor-pointer">
+                <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setCurrentPage(1); }} className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-600 bg-white font-medium cursor-pointer">
                   <option value="ALL">All Severities</option>
                   <option value="info">Info</option>
                   <option value="warning">Warning</option>
@@ -116,40 +117,43 @@ export function AuditLogsPage() {
           <TableSkeleton rows={8} columns={5} />
         </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map((log, idx) => (
-            <motion.div
-              key={log.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.03 }}
-              className="bg-white border border-slate-100 rounded-xl p-4 flex items-start gap-4 hover:border-purple-200 transition-colors"
-            >
-              <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-lg flex-shrink-0">
-                {EVENT_ICONS[log.event] || "📋"}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-sm text-slate-800">{log.event}</span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${STATUS_BADGE[log.type] || "bg-slate-100 text-slate-600"}`}>
-                    {log.type}
-                  </span>
+        <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xs">
+          <div className="space-y-2 p-4">
+            {logs.map((log, idx) => (
+              <motion.div
+                key={log.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.03 }}
+                className="bg-slate-50/50 border border-slate-100 rounded-xl p-4 flex items-start gap-4 hover:border-purple-200 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-lg flex-shrink-0 shadow-2xs">
+                  {EVENT_ICONS[log.event] || "📋"}
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">{log.description}</p>
-                <div className="flex items-center gap-3 mt-1.5">
-                  <span className="text-[11px] font-medium text-slate-400">{log.user}</span>
-                  <span className="text-slate-200">|</span>
-                  <span className="text-[11px] text-slate-400">{log.timestamp}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-sm text-slate-800">{log.event}</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${STATUS_BADGE[log.type] || "bg-slate-100 text-slate-600"}`}>
+                      {log.type}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">{log.description}</p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <span className="text-[11px] font-medium text-slate-400">{log.user}</span>
+                    <span className="text-slate-200">|</span>
+                    <span className="text-[11px] text-slate-400">{log.timestamp}</span>
+                  </div>
                 </div>
-              </div>
-              {log.type === "error" && (
-                <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0 mt-2.5" />
-              )}
-            </motion.div>
-          ))}
-          {filtered.length === 0 && (
-            <div className="text-center py-10 text-slate-400 text-sm">No audit logs found.</div>
-          )}
+                {log.type === "error" && (
+                  <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0 mt-2.5" />
+                )}
+              </motion.div>
+            ))}
+            {logs.length === 0 && (
+              <div className="text-center py-10 text-slate-400 text-sm">No audit logs found.</div>
+            )}
+          </div>
+          <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} limit={3} onPageChange={setCurrentPage} />
         </div>
       )}
     </div>

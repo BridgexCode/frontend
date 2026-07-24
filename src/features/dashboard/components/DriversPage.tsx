@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { fetchDriversApi, createDriverApi, deleteDriverApi } from "@/features/dashboard/services/drivers-api";
 import { Search, Plus, Trash2, Loader2 } from "lucide-react";
 
+import { Pagination } from "@/shared/components/Pagination";
+
 interface UIDriver {
   _id: string;
   driverId?: string;
@@ -17,37 +19,40 @@ interface UIDriver {
 export function DriversPage() {
   const [drivers, setDrivers] = useState<UIDriver[]>([]);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", licenseNumber: "" });
   const [creating, setCreating] = useState(false);
 
+  const loadDrivers = async (page: number = currentPage, searchQuery: string = search) => {
+    try {
+      const res = await fetchDriversApi({ page, limit: 3, search: searchQuery || undefined });
+      const list = Array.isArray(res) ? res : (res.data || []);
+      setDrivers(list);
+      setTotalPages(res.totalPages || Math.ceil((res.total || list.length) / 3) || 1);
+      setTotalItems(res.total ?? list.length);
+    } catch {}
+  };
+
   useEffect(() => {
     let mounted = true;
-    fetchDriversApi().then((data) => {
-      if (!mounted) return;
-      setDrivers(data);
-    }).catch(() => {}).finally(() => { if (mounted) setLoading(false); });
+    loadDrivers(currentPage, search).finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
-  }, []);
-
-  const filtered = useMemo(() => {
-    return drivers.filter((d) =>
-      d.name.toLowerCase().includes(search.toLowerCase()) ||
-      d.driverId?.toLowerCase().includes(search.toLowerCase()) ||
-      d.phone.includes(search)
-    );
-  }, [drivers, search]);
+  }, [currentPage, search]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone || !form.licenseNumber) return;
     setCreating(true);
     try {
-      const created = await createDriverApi(form);
-      setDrivers([created, ...drivers]);
+      await createDriverApi(form);
       setForm({ name: "", phone: "", licenseNumber: "" });
       setShowCreate(false);
+      setCurrentPage(1);
+      loadDrivers(1, search);
     } catch (err) {
       console.error("Create driver failed", err);
     } finally {
@@ -58,7 +63,7 @@ export function DriversPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteDriverApi(id);
-      setDrivers((prev) => prev.filter((d) => d._id !== id));
+      loadDrivers(currentPage, search);
     } catch (err) {
       console.error("Delete failed", err);
     }
@@ -82,12 +87,12 @@ export function DriversPage() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input
           type="text" placeholder="Search drivers..." value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
           className="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 font-medium"
         />
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -101,7 +106,7 @@ export function DriversPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((driver) => (
+              {drivers.map((driver) => (
                 <tr key={driver._id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                   <td className="px-4 py-3">
                     <span className="font-mono text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">{driver.driverId || "—"}</span>
@@ -123,12 +128,13 @@ export function DriversPage() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {drivers.length === 0 && (
                 <tr><td colSpan={6} className="text-center py-10 text-sm text-slate-400">No drivers found</td></tr>
               )}
             </tbody>
           </table>
         </div>
+        <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} limit={3} onPageChange={setCurrentPage} />
       </div>
 
       {showCreate && (

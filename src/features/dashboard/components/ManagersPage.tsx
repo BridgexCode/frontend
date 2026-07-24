@@ -8,6 +8,8 @@ import { ManagersTable } from "./ManagersTable";
 import { ViewManagerModal } from "./ViewManagerModal";
 import { AddManagerModal } from "./AddManagerModal";
 
+import { Pagination } from "@/shared/components/Pagination";
+
 function toManagerStatus(apiManager: { isActive: boolean; isDeleted?: boolean }): Manager["status"] {
   if (apiManager.isDeleted) return "SUSPENDED";
   return apiManager.isActive ? "ACTIVE" : "INACTIVE";
@@ -17,19 +19,23 @@ export function ManagersPage() {
   const [managers, setManagers] = useState<Manager[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(false);
   const [selectedManager, setSelectedManager] = useState<Manager | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingManager, setEditingManager] = useState<Manager | null>(null);
 
-  useEffect(() => {
+  const loadManagers = useCallback((page: number = currentPage) => {
     let mounted = true;
     setLoading(true);
-    fetchManagersApi()
-      .then((data) => {
+    fetchManagersApi({ page, limit: 3, search: search || undefined })
+      .then((res) => {
         if (!mounted) return;
-        const mapped: Manager[] = data.map((m) => ({
-          id: m.id,
+        const list = Array.isArray(res) ? res : (res.data || []);
+        const mapped: Manager[] = list.map((m: any) => ({
+          id: m._id || m.id,
           name: m.name,
           email: m.email,
           phone: m.phone || "",
@@ -37,15 +43,19 @@ export function ManagersPage() {
           createdAt: "",
         }));
         setManagers(mapped);
+        setTotalPages(res.totalPages || Math.ceil((res.total || list.length) / 3) || 1);
+        setTotalItems(res.total ?? list.length);
       })
-      .catch(() => {
-        // silently fail — table will show empty state
-      })
+      .catch(() => {})
       .finally(() => {
         if (mounted) setLoading(false);
       });
     return () => { mounted = false; };
-  }, []);
+  }, [currentPage, search]);
+
+  useEffect(() => {
+    return loadManagers(currentPage);
+  }, [currentPage, search, loadManagers]);
 
   const filtered = useMemo(() => {
     return managers.filter((m) => {
@@ -117,15 +127,18 @@ export function ManagersPage() {
         loading={loading} onRefresh={handleRefresh}
         onCreateClick={() => setIsCreateModalOpen(true)}
       />
-      <ManagersTable
-        managers={filtered}
-        loading={loading}
-        onView={setSelectedManager}
-        onEdit={setEditingManager}
-        onCreateClick={() => setIsCreateModalOpen(true)}
-        onToggleActive={handleToggleActive}
-        onDelete={handleDelete}
-      />
+      <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xs">
+        <ManagersTable
+          managers={filtered}
+          loading={loading}
+          onView={setSelectedManager}
+          onEdit={setEditingManager}
+          onCreateClick={() => setIsCreateModalOpen(true)}
+          onToggleActive={handleToggleActive}
+          onDelete={handleDelete}
+        />
+        <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} limit={3} onPageChange={setCurrentPage} />
+      </div>
       <ViewManagerModal manager={selectedManager} onClose={() => setSelectedManager(null)} />
       <AddManagerModal
         key="create-manager"
