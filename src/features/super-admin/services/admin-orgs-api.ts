@@ -14,9 +14,28 @@ export interface Organization {
   updatedAt?: string;
 }
 
-export async function fetchOrganizationsApi(): Promise<Organization[]> {
-  const res = await api.get("/api/superAdmin/organizations");
-  return res.data.data;
+export interface OrganizationsListResponse {
+  data: Organization[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function fetchOrganizationsApi(
+  params?: { page?: number; limit?: number; search?: string; status?: string },
+): Promise<OrganizationsListResponse> {
+  const res = await api.get("/api/superAdmin/organizations", { params: { limit: 10, ...params } });
+  if (Array.isArray(res.data.data) && res.data.total === undefined) {
+    return { data: res.data.data, total: res.data.data.length, page: 1, limit: 10, totalPages: 1 };
+  }
+  return {
+    data: res.data.data || [],
+    total: res.data.total ?? 0,
+    page: res.data.page ?? 1,
+    limit: res.data.limit ?? 10,
+    totalPages: res.data.totalPages ?? 1,
+  };
 }
 
 export async function fetchOrganizationByIdApi(id: string): Promise<Organization> {

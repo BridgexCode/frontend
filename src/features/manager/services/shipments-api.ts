@@ -33,6 +33,7 @@ export interface ShipmentsListResponse {
   total: number;
   page: number;
   limit: number;
+  totalPages: number;
 }
 
 export const STATUS_MAP: Record<string, string> = {
@@ -73,8 +74,16 @@ export async function createShipmentApi(
 export async function fetchShipmentsApi(
   params?: { page?: number; limit?: number; status?: string },
 ): Promise<ShipmentsListResponse> {
-  const res = await api.get("/api/shipments/get-shipments", { params });
-  return res.data;
+  const res = await api.get("/api/shipments/get-shipments", { params: { limit: 10, ...params } });
+  const total = res.data.total ?? res.data.data?.length ?? 0;
+  const limit = res.data.limit ?? 10;
+  return {
+    data: res.data.data || [],
+    total,
+    page: res.data.page ?? 1,
+    limit,
+    totalPages: res.data.totalPages ?? (Math.ceil(total / limit) || 1),
+  };
 }
 
 export async function fetchShipmentByIdApi(

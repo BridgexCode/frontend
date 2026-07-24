@@ -27,9 +27,31 @@ export interface ApiVehicle {
   updatedAt: string;
 }
 
-export async function fetchVehiclesApi(): Promise<ApiVehicle[]> {
-  const res = await api.get("/api/vehicles/get-vehicles");
-  return res.data.data;
+export interface VehiclesListResponse {
+  data: ApiVehicle[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function fetchVehiclesApi(
+  params?: { page?: number; limit?: number; search?: string; status?: string },
+): Promise<VehiclesListResponse> {
+  const res = await api.get("/api/vehicles/get-vehicles", { params: { limit: 10, ...params } });
+  if (Array.isArray(res.data)) {
+    return { data: res.data, total: res.data.length, page: 1, limit: 10, totalPages: 1 };
+  }
+  if (Array.isArray(res.data.data) && res.data.total === undefined) {
+    return { data: res.data.data, total: res.data.data.length, page: 1, limit: 10, totalPages: 1 };
+  }
+  return {
+    data: res.data.data || [],
+    total: res.data.total ?? 0,
+    page: res.data.page ?? 1,
+    limit: res.data.limit ?? 10,
+    totalPages: res.data.totalPages ?? 1,
+  };
 }
 
 export async function createVehicleApi(

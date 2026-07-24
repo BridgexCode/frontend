@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { fetchVehiclesApi, createVehicleApi, updateVehicleApi, deleteVehicleApi } from "@/features/dashboard/services/vehicles-api";
 import { Search, Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Loader2 } from "lucide-react";
+import { Pagination } from "@/shared/components/Pagination";
 
 interface UIVehicle {
   _id: string;
@@ -22,37 +23,41 @@ const STATUS_BADGE: Record<string, string> = {
 export function VehiclesPage() {
   const [vehicles, setVehicles] = useState<UIVehicle[]>([]);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<UIVehicle | null>(null);
   const [form, setForm] = useState({ vehicleNumber: "", vehicleModel: "", type: "truck" as string });
   const [creating, setCreating] = useState(false);
 
+  const loadVehicles = async (page: number = currentPage, searchQuery: string = search) => {
+    try {
+      const res = await fetchVehiclesApi({ page, limit: 3, search: searchQuery || undefined });
+      const list = Array.isArray(res) ? res : (res.data || []);
+      setVehicles(list);
+      setTotalPages(res.totalPages || Math.ceil((res.total || list.length) / 3) || 1);
+      setTotalItems(res.total ?? list.length);
+    } catch {}
+  };
+
   useEffect(() => {
     let mounted = true;
-    fetchVehiclesApi().then((data) => {
-      if (!mounted) return;
-      setVehicles(data);
-    }).catch(() => {}).finally(() => { if (mounted) setLoading(false); });
+    loadVehicles(currentPage, search).finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
-  }, []);
-
-  const filtered = useMemo(() => {
-    return vehicles.filter((v) =>
-      v.vehicleNumber.toLowerCase().includes(search.toLowerCase()) ||
-      v.vehicleModel.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [vehicles, search]);
+  }, [currentPage, search]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.vehicleNumber || !form.vehicleModel) return;
     setCreating(true);
     try {
-      const created = await createVehicleApi(form as any);
-      setVehicles([created, ...vehicles]);
+      await createVehicleApi(form as any);
       setForm({ vehicleNumber: "", vehicleModel: "", type: "truck" });
       setShowCreate(false);
+      setCurrentPage(1);
+      loadVehicles(1, search);
     } catch (err) {
       console.error("Create vehicle failed", err);
     } finally {
@@ -63,12 +68,12 @@ export function VehiclesPage() {
   const handleStatusToggle = async (vehicle: UIVehicle) => {
     const nextStatus =
       vehicle.status === "available" ? "maintenance" :
-      vehicle.status === "maintenance" ? "inactive" :
-      vehicle.status === "inactive" ? "available" :
-      "maintenance";
+        vehicle.status === "maintenance" ? "inactive" :
+          vehicle.status === "inactive" ? "available" :
+            "maintenance";
     try {
-      const updated = await updateVehicleApi(vehicle._id, { status: nextStatus } as any);
-      setVehicles((prev) => prev.map((v) => v._id === vehicle._id ? { ...v, status: updated.status } : v));
+      await updateVehicleApi(vehicle._id, { status: nextStatus } as any);
+      loadVehicles(currentPage, search);
     } catch (err) {
       console.error("Status update failed", err);
     }
@@ -84,10 +89,10 @@ export function VehiclesPage() {
     if (!editingVehicle || !form.vehicleNumber || !form.vehicleModel) return;
     setCreating(true);
     try {
-      const updated = await updateVehicleApi(editingVehicle._id, form as any);
-      setVehicles((prev) => prev.map((v) => v._id === editingVehicle._id ? { ...v, ...updated } : v));
+      await updateVehicleApi(editingVehicle._id, form as any);
       setEditingVehicle(null);
       setForm({ vehicleNumber: "", vehicleModel: "", type: "truck" });
+      loadVehicles(currentPage, search);
     } catch (err) {
       console.error("Update failed", err);
     } finally {
@@ -98,7 +103,7 @@ export function VehiclesPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteVehicleApi(id);
-      setVehicles((prev) => prev.filter((v) => v._id !== id));
+      loadVehicles(currentPage, search);
     } catch (err) {
       console.error("Delete failed", err);
     }
@@ -120,10 +125,10 @@ export function VehiclesPage() {
 
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input type="text" placeholder="Search vehicles..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 font-medium" />
+        <input type="text" placeholder="Search vehicles..." value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }} className="w-full border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-emerald-600 font-medium" />
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -136,7 +141,7 @@ export function VehiclesPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((vehicle) => (
+              {vehicles.map((vehicle) => (
                 <tr key={vehicle._id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                   <td className="px-4 py-3 font-semibold text-slate-800 font-mono text-xs">{vehicle.vehicleNumber}</td>
                   <td className="px-4 py-3 text-slate-500">{vehicle.vehicleModel}</td>
@@ -163,12 +168,13 @@ export function VehiclesPage() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {vehicles.length === 0 && (
                 <tr><td colSpan={5} className="text-center py-10 text-sm text-slate-400">No vehicles found</td></tr>
               )}
             </tbody>
           </table>
         </div>
+        <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} limit={3} onPageChange={setCurrentPage} />
       </div>
 
       {(showCreate || editingVehicle) && (

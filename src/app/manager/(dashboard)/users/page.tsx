@@ -28,60 +28,73 @@ function toUiUser(apiUser: any): UIUser {
   };
 }
 
+import { Pagination } from "@/shared/components/Pagination";
+
 export default function UsersPage() {
   const [users, setUsers] = useState<UIUser[]>([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<UIUser | null>(null);
 
+  const loadUsers = useCallback(async (page: number = currentPage, role: string = roleFilter, searchStr: string = search) => {
+    try {
+      const res = await fetchUsersApi({
+        page,
+        limit: 3,
+        role: role !== "ALL" ? role : undefined,
+        search: searchStr || undefined,
+      });
+      setUsers(res.data.map(toUiUser));
+      setTotalPages(res.totalPages || 1);
+      setTotalItems(res.total || 0);
+    } catch {}
+  }, [currentPage, roleFilter, search]);
+
   useEffect(() => {
     let mounted = true;
-    fetchUsersApi().then((data) => {
-      if (!mounted) return;
-      setUsers(data.map(toUiUser));
-    }).catch(() => {}).finally(() => { if (mounted) setLoading(false); });
+    loadUsers(currentPage, roleFilter, search).finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
-  }, []);
+  }, [currentPage, roleFilter, search, loadUsers]);
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
-      const matchesSearch =
-        u.name.toLowerCase().includes(search.toLowerCase()) ||
-        u.email.toLowerCase().includes(search.toLowerCase()) ||
-        u.phone.includes(search);
-      const matchesRole = roleFilter === "ALL" || u.role === roleFilter;
       const matchesStatus = statusFilter === "ALL" || u.status === statusFilter;
-      return matchesSearch && matchesRole && matchesStatus;
+      return matchesStatus;
     });
-  }, [users, search, roleFilter, statusFilter]);
+  }, [users, statusFilter]);
 
   const handleRefresh = useCallback(() => {
     setLoading(true);
-    fetchUsersApi().then((data) => setUsers(data.map(toUiUser)))
-      .catch(() => {}).finally(() => setLoading(false));
-  }, []);
+    loadUsers(currentPage, roleFilter, search).finally(() => setLoading(false));
+  }, [currentPage, roleFilter, search, loadUsers]);
 
   const handleToggleActive = useCallback(async (user: UIUser) => {
     try {
       await toggleActiveUserApi(user.id);
-      setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, status: u.status === "ACTIVE" ? "INACTIVE" as const : "ACTIVE" as const } : u));
+      loadUsers(currentPage, roleFilter, search);
     } catch (err) {
       console.error("Toggle active failed", err);
     }
-  }, []);
+  }, [currentPage, roleFilter, search, loadUsers]);
 
   return (
     <div className="space-y-6">
       <UsersFilters
-        search={search} onSearchChange={setSearch}
-        roleFilter={roleFilter} onRoleFilterChange={setRoleFilter}
+        search={search} onSearchChange={(s) => { setSearch(s); setCurrentPage(1); }}
+        roleFilter={roleFilter} onRoleFilterChange={(r) => { setRoleFilter(r); setCurrentPage(1); }}
         statusFilter={statusFilter} onStatusFilterChange={setStatusFilter}
         loading={loading} onRefresh={handleRefresh}
         onCreateClick={() => {}}
       />
-      <UsersTable users={filtered} loading={loading} onView={setSelectedUser} onToggleActive={handleToggleActive} />
+      <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xs">
+        <UsersTable users={filtered} loading={loading} onView={setSelectedUser} onToggleActive={handleToggleActive} />
+        <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} limit={3} onPageChange={setCurrentPage} />
+      </div>
       <ViewUserModal user={selectedUser} onClose={() => setSelectedUser(null)} />
     </div>
   );

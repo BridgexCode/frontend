@@ -24,20 +24,24 @@ interface NewWorkerForm {
   password: string;
 }
 
+import { Pagination } from "@/shared/components/Pagination";
+
 export default function WorkersPage() {
   const [workers, setWorkers] = useState<UIWorker[]>([]);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState<NewWorkerForm>({ name: "", email: "", phone: "", password: "" });
   const [formErrors, setFormErrors] = useState<Partial<NewWorkerForm>>({});
 
-  useEffect(() => {
-    let mounted = true;
-    fetchWorkersApi().then((data) => {
-      if (!mounted) return;
-      setWorkers(data.map((w: any) => ({
+  const loadWorkers = useCallback(async (page: number = currentPage, searchStr: string = search) => {
+    try {
+      const res = await fetchWorkersApi({ page, limit: 3, search: searchStr || undefined });
+      setWorkers(res.data.map((w: any) => ({
         id: w.id,
         name: w.name,
         email: w.email,
@@ -46,17 +50,16 @@ export default function WorkersPage() {
         status: w.isActive ? "ACTIVE" as const : "INACTIVE" as const,
         createdAt: "",
       })));
-    }).catch(() => {}).finally(() => { if (mounted) setLoading(false); });
-    return () => { mounted = false; };
-  }, []);
+      setTotalPages(res.totalPages || 1);
+      setTotalItems(res.total || 0);
+    } catch {}
+  }, [currentPage, search]);
 
-  const filtered = useMemo(() => {
-    return workers.filter((w) =>
-      w.name.toLowerCase().includes(search.toLowerCase()) ||
-      w.email.toLowerCase().includes(search.toLowerCase()) ||
-      w.phone.includes(search)
-    );
-  }, [workers, search]);
+  useEffect(() => {
+    let mounted = true;
+    loadWorkers(currentPage, search).finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, [currentPage, search, loadWorkers]);
 
   const validate = () => {
     const errors: Partial<NewWorkerForm> = {};
@@ -71,20 +74,12 @@ export default function WorkersPage() {
     if (!validate()) return;
 
     try {
-      const created = await createWorkerApi({ name: form.name, phone: form.phone });
-      const newWorker: UIWorker = {
-        id: created.id,
-        name: created.name,
-        email: created.email,
-        phone: created.phone || "",
-        assignedShipments: 0,
-        status: "ACTIVE",
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      setWorkers([newWorker, ...workers]);
+      await createWorkerApi({ name: form.name, phone: form.phone });
       setForm({ name: "", email: "", phone: "", password: "" });
       setFormErrors({});
       setShowCreateModal(false);
+      setCurrentPage(1);
+      loadWorkers(1, search);
     } catch (err: any) {
       const message = err?.response?.data?.error || err?.response?.data?.message || err.message || "Something went wrong";
       toast.error(message);
@@ -94,28 +89,31 @@ export default function WorkersPage() {
   const handleToggleActive = useCallback(async (worker: UIWorker) => {
     try {
       await toggleActiveWorkerApi(worker.id);
-      setWorkers((prev) => prev.map((w) => w.id === worker.id ? { ...w, status: w.status === "ACTIVE" ? "INACTIVE" as const : "ACTIVE" as const } : w));
+      loadWorkers(currentPage, search);
       toast.success("Worker status updated");
     } catch (err) {
       toast.error("Failed to toggle worker status");
     }
-  }, []);
+  }, [currentPage, search, loadWorkers]);
 
   const handleDelete = useCallback(async (worker: UIWorker) => {
     if (!window.confirm(`Delete worker "${worker.name}"?`)) return;
     try {
       await deleteWorkerApi(worker.id);
-      setWorkers((prev) => prev.filter((w) => w.id !== worker.id));
+      loadWorkers(currentPage, search);
       toast.success("Worker deleted");
     } catch (err) {
       toast.error("Failed to delete worker");
     }
-  }, []);
+  }, [currentPage, search, loadWorkers]);
 
   return (
     <div className="space-y-6">
-      <WorkersHeader search={search} onSearchChange={setSearch} onCreateClick={() => setShowCreateModal(true)} />
-      <WorkersTable workers={filtered} loading={loading} onCreateClick={() => setShowCreateModal(true)} onToggleActive={handleToggleActive} onDelete={handleDelete} />
+      <WorkersHeader search={search} onSearchChange={(s) => { setSearch(s); setCurrentPage(1); }} onCreateClick={() => setShowCreateModal(true)} />
+      <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xs">
+        <WorkersTable workers={workers} loading={loading} onCreateClick={() => setShowCreateModal(true)} onToggleActive={handleToggleActive} onDelete={handleDelete} />
+        <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} limit={3} onPageChange={setCurrentPage} />
+      </div>
       <CreateWorkerModal
         open={showCreateModal}
         form={form}

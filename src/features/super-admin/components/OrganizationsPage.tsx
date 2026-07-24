@@ -10,10 +10,15 @@ import { TableSkeleton } from "@/features/manager/components/TableSkeleton";
 import { Mail } from "lucide-react";
 import { getStoredEmail } from "@/shared/lib/axios";
 
+import { Pagination } from "@/shared/components/Pagination";
+
 export function OrganizationsPage() {
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
@@ -23,35 +28,29 @@ export function OrganizationsPage() {
     setAdminEmail(getStoredEmail() || "admin@naxivo.com");
   }, []);
 
-  const loadOrgs = useCallback(async () => {
+  const loadOrgs = useCallback(async (page: number = currentPage, status: string = statusFilter, searchStr: string = search) => {
     setLoading(true);
     try {
-      const data = await fetchOrganizationsApi();
-      setOrgs(data);
+      const res = await fetchOrganizationsApi({
+        page,
+        limit: 3,
+        status: status !== "ALL" ? (status === "ACTIVE" ? "active" : "inactive") : undefined,
+        search: searchStr || undefined,
+      });
+      setOrgs(res.data);
+      setTotalPages(res.totalPages || 1);
+      setTotalItems(res.total || 0);
     } catch {}
     setLoading(false);
-  }, []);
+  }, [currentPage, statusFilter, search]);
 
-  useEffect(() => { loadOrgs(); }, [loadOrgs]);
-
-  const filtered = useMemo(() => {
-    return orgs.filter((o) => {
-      const matchesSearch =
-        o.name.toLowerCase().includes(search.toLowerCase()) ||
-        o.email.toLowerCase().includes(search.toLowerCase());
-      const status = o.status === "active" ? "ACTIVE" : "SUSPENDED";
-      const matchesStatus = statusFilter === "ALL" || status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [orgs, search, statusFilter]);
+  useEffect(() => { loadOrgs(currentPage, statusFilter, search); }, [currentPage, statusFilter, search, loadOrgs]);
 
   const handleToggle = async (org: Organization) => {
     const newStatus = org.status === "active" ? "inactive" : "active";
     try {
-      const updated = await toggleOrganizationStatusApi(org._id, newStatus);
-      setOrgs((prev) =>
-        prev.map((o) => (o._id === org._id ? { ...o, status: updated.status } : o)),
-      );
+      await toggleOrganizationStatusApi(org._id, newStatus);
+      loadOrgs(currentPage, statusFilter, search);
       toast.success("Organization status updated");
     } catch (err: any) {
       toast.error(err.response?.data?.error || "Failed to toggle status");
@@ -62,7 +61,7 @@ export function OrganizationsPage() {
     if (!confirm(`Are you sure you want to delete "${org.name}"?`)) return;
     try {
       await deleteOrganizationApi(org._id);
-      setOrgs((prev) => prev.filter((o) => o._id !== org._id));
+      loadOrgs(currentPage, statusFilter, search);
       toast.success(`"${org.name}" deleted`);
     } catch {}
   };
@@ -88,7 +87,7 @@ export function OrganizationsPage() {
               type="text"
               placeholder="Search by organization name or email..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
               className="w-full border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 font-medium"
             />
           </div>
@@ -101,7 +100,7 @@ export function OrganizationsPage() {
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? "rotate-180" : ""}`} />
           </button>
           <button
-            onClick={loadOrgs}
+            onClick={() => loadOrgs(currentPage, statusFilter, search)}
             className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
           >
             <RotateCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -119,7 +118,7 @@ export function OrganizationsPage() {
             >
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Status</label>
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-600 bg-white font-medium cursor-pointer">
+                <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }} className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-600 bg-white font-medium cursor-pointer">
                   <option value="ALL">All Statuses</option>
                   <option value="ACTIVE">Active</option>
                   <option value="SUSPENDED">Suspended</option>
@@ -136,7 +135,7 @@ export function OrganizationsPage() {
           <TableSkeleton rows={6} columns={7} />
         </div>
       ) : (
-        <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -152,7 +151,7 @@ export function OrganizationsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((org) => (
+                {orgs.map((org) => (
                   <motion.tr
                     key={org._id}
                     initial={{ opacity: 0 }}
@@ -191,9 +190,13 @@ export function OrganizationsPage() {
                     </td>
                   </motion.tr>
                 ))}
+                {orgs.length === 0 && (
+                  <tr><td colSpan={8} className="text-center py-10 text-sm text-slate-400">No organizations found</td></tr>
+                )}
               </tbody>
             </table>
           </div>
+          <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} limit={3} onPageChange={setCurrentPage} />
         </div>
       )}
 
