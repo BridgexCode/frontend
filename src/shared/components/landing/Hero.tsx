@@ -92,7 +92,7 @@ export const Hero: React.FC = () => {
             <div className="relative w-full aspect-[1/1] max-w-[650px] mx-auto">
               <Image
                 src="/homeimage.svg"
-                alt="Naxivo Dashboard Preview"
+                alt="Logiflow Dashboard Preview"
                 fill
                 sizes="650px"
                 priority
