@@ -21,6 +21,14 @@ export async function registerUser(
   return { user: res.data.user, token: res.data.token };
 }
 
+export async function requestPasswordReset(email: string, redirectTo: string): Promise<void> {
+  await api.post("/api/auth/request-password-reset", { email, redirectTo });
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await api.post("/api/auth/reset-password", { token, newPassword });
+}
+
 export async function logoutUser(token: string): Promise<void> {
   await api.post("/api/auth/logout", null, {
     headers: { Authorization: `Bearer ${token}` },

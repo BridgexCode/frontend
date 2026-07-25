@@ -63,7 +63,7 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center gap-2">
           <Network className="text-secondary w-8 h-8" />
           <span className="font-headline-lg text-lg md:text-xl font-bold text-on-surface tracking-tight">
-            Naxivo
+            Logiflow
           </span>
         </div>
 

@@ -86,7 +86,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 <Network className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">Naxivo</span>
+                <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">Logiflow</span>
                 <span className="text-[10px] font-semibold text-slate-400 tracking-wide">Logistics & Shipment Management</span>
               </div>
             </div>
@@ -178,9 +178,9 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                       <label className="text-xs font-bold text-slate-700 block">
                         Password <span className="text-red-500">*</span>
                       </label>
-                      <span className="text-xs font-semibold text-emerald-600 hover:underline cursor-pointer">
+                      <Link href="/forgot-password" className="text-xs font-semibold text-emerald-600 hover:underline cursor-pointer">
                         Forgot password?
-                      </span>
+                      </Link>
                     </div>
                     <div
                       className={`flex items-center border rounded-xl px-3.5 py-3 gap-3 transition-all ${
