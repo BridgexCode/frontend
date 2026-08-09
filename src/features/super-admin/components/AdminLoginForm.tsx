@@ -55,7 +55,7 @@ export function AdminLoginForm() {
             </div>
             <h1 className="text-xl font-bold text-slate-900">Super Admin Login</h1>
             <p className="text-sm text-slate-400 mt-1">
-              Sign in to manage the Naxivo platform
+              Sign in to manage the Logiflow platform
             </p>
           </div>
 

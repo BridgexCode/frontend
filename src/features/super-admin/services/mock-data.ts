@@ -21,7 +21,7 @@ export const MOCK_ADMIN_USERS: AdminUser[] = [
   { id: "AU009", name: "Neha Gupta", email: "neha@quickdeliver.com", role: "ORGANIZATION_OWNER", organizationId: "ORG006", organizationName: "QuickDeliver", status: "ACTIVE", createdAt: "2025-08-12" },
   { id: "AU010", name: "Ananya Reddy", email: "ananya@speedx.com", role: "WORKER", organizationId: "ORG001", organizationName: "SpeedX Logistics", status: "ACTIVE", createdAt: "2025-04-18" },
   { id: "AU011", name: "Rajesh Verma", email: "rajesh@globalparcel.com", role: "WORKER", organizationId: "ORG003", organizationName: "Global Parcel Services", status: "INACTIVE", createdAt: "2025-05-12" },
-  { id: "AU012", name: "System Admin", email: "admin@naxivo.com", role: "SUPER_ADMIN", organizationId: "ORG001", organizationName: "Naxivo", status: "ACTIVE", createdAt: "2024-12-01" },
+  { id: "AU012", name: "System Admin", email: "admin@naxivo.com", role: "SUPER_ADMIN", organizationId: "ORG001", organizationName: "Logiflow", status: "ACTIVE", createdAt: "2024-12-01" },
 ];
 
 export const MOCK_SYSTEM_STATS: SystemStats = {

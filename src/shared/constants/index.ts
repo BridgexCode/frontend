@@ -48,8 +48,8 @@ export const NAV_LINKS: NavLink[] = [
 
 export const FEATURES: FeatureItem[] = [
   {
-    title: "WhatsApp Automation",
-    description: "Drivers update operations directly from WhatsApp.",
+    title: "Telegram Automation",
+    description: "Drivers update operations directly from Telegram bot.",
     icon: MessageSquare,
   },
   {
@@ -82,8 +82,8 @@ export const FEATURES: FeatureItem[] = [
 export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     stepNumber: 1,
-    title: "Driver texts WhatsApp",
-    description: 'Drivers send a simple message: "Delivered Order #4521" or "Delayed 20m traffic". No training required.',
+    title: "Driver texts Telegram",
+    description: 'Drivers message @logiflowtm_bot with updates like "Delivered Order #4521" or "Delayed 20m traffic". No training required.',
   },
   {
     stepNumber: 2,

@@ -4,25 +4,25 @@ export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:500
 
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("naxivo_token");
+  return localStorage.getItem("logiflow_token");
 }
 
 export function setStoredToken(token: string): void {
-  localStorage.setItem("naxivo_token", token);
+  localStorage.setItem("logiflow_token", token);
 }
 
 export function getStoredEmail(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("naxivo_email");
+  return localStorage.getItem("logiflow_email");
 }
 
 export function setStoredEmail(email: string): void {
-  localStorage.setItem("naxivo_email", email);
+  localStorage.setItem("logiflow_email", email);
 }
 
 export function removeStoredToken(): void {
-  localStorage.removeItem("naxivo_token");
-  localStorage.removeItem("naxivo_email");
+  localStorage.removeItem("logiflow_token");
+  localStorage.removeItem("logiflow_email");
 }
 
 const api = axios.create({

@@ -112,7 +112,7 @@ export function RegisterForm() {
                 <Network className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">Naxivo</span>
+                <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">Logiflow</span>
                 <span className="text-[10px] font-semibold text-slate-400 tracking-wide">Logistics & Shipment Management</span>
               </div>
             </div>

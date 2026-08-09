@@ -67,7 +67,7 @@ export default function ForgotPasswordPage() {
           </div>
           <div>
             <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">
-              Naxivo
+              Logiflow
             </span>
             <span className="text-[10px] font-semibold text-slate-400 tracking-wide">
               Account Recovery

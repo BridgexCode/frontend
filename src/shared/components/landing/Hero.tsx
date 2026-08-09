@@ -33,11 +33,11 @@ export const Hero: React.FC = () => {
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-on-surface tracking-tight mb-6 leading-[1.1]">
             Logistics ERP Powered by <span className="hidden md:inline"><br /></span>
-            <span className="text-secondary">WhatsApp &amp; AI</span>
+            <span className="text-secondary">Telegram &amp; AI</span>
           </h1>
 
           <p className="text-base md:text-lg text-on-surface-variant mb-10 w-full max-w-lg leading-relaxed">
-            Drivers update shipments through WhatsApp. AI automatically updates your ERP,
+            Drivers update shipments through Telegram Bot @logiflowtm_bot. AI automatically updates your ERP,
             timelines, and operations dashboard in real time.
           </p>
 
@@ -91,8 +91,8 @@ export const Hero: React.FC = () => {
           >
             <div className="relative w-full aspect-[1/1] max-w-[650px] mx-auto">
               <Image
-                src="/homeimage.svg"
-                alt="Logiflow Dashboard Preview"
+                src="/logiflow-hero-light-transparent.png"
+                alt="Logiflow shipping container hero visual"
                 fill
                 sizes="650px"
                 priority

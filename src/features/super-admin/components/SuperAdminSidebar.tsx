@@ -34,7 +34,7 @@ export function SuperAdminSidebar() {
             <Network className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-slate-900">Naxivo</h2>
+            <h2 className="text-sm font-bold text-slate-900">Logiflow</h2>
             <p className="text-[10px] text-slate-400">Super Admin</p>
           </div>
         </div>
@@ -84,7 +84,7 @@ export function SuperAdminSidebar() {
             <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center">
               <Network className="w-4 h-4 text-white" />
             </div>
-            <span className="text-sm font-bold text-slate-900">Naxivo</span>
+            <span className="text-sm font-bold text-slate-900">Logiflow</span>
           </div>
         </div>
         <div className="w-7 h-7 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 text-[10px] font-bold">

@@ -18,18 +18,20 @@ export const Footer: React.FC = () => {
               <Mail className="w-4 h-4 mt-0.5 text-secondary shrink-0" />
               <div>
                 <a href="mailto:hello@nexivo.com" className="hover:text-secondary transition-colors duration-200 block">
-                  hello@nexivo.com
+                  hello@logiflow.com
                 </a>
                 <a href="mailto:support@nexivo.com" className="hover:text-secondary transition-colors duration-200 block">
-                  support@nexivo.com
+                  support@logiflow.com
                 </a>
               </div>
             </li>
             <li className="flex items-start gap-3">
               <Phone className="w-4 h-4 mt-0.5 text-secondary shrink-0" />
               <div>
-                <span className="block text-xs font-medium text-on-surface uppercase tracking-wider mb-0.5">WhatsApp Business</span>
-                <span>+91 XXXXX XXXXX</span>
+                <span className="block text-xs font-medium text-on-surface uppercase tracking-wider mb-0.5">Telegram Bot</span>
+                <a href="https://t.me/logiflowtm_bot" target="_blank" rel="noreferrer" className="hover:text-secondary transition-colors duration-200">
+                  @logiflowtm_bot
+                </a>
               </div>
             </li>
             <li className="flex items-start gap-3">
@@ -61,7 +63,7 @@ export const Footer: React.FC = () => {
       {/* Sub-footer Copyright & Status */}
       <div className="w-full max-w-7xl mx-auto mt-20 pt-8 border-t border-outline-variant/20 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-xs text-on-surface-variant font-medium">
-          &copy; 2026 Nexivo. All rights reserved.
+          &copy; 2026 Logiflow. All rights reserved.
         </p>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-secondary-fixed-dim animate-pulse" />

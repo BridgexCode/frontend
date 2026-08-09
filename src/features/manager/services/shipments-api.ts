@@ -23,6 +23,16 @@ export interface ApiShipment {
   expectedDeliveryDate: string;
   statusLifecycle: string;
   timeline?: unknown[];
+  proofPhotos?: {
+    type: "proof_photo";
+    telegramFileId: string;
+    cloudinaryAssetId?: string;
+    cloudinaryPublicId: string;
+    cloudinaryUrl: string;
+    cloudinaryFormat?: string;
+    cloudinaryBytes?: number;
+    timestamp: string;
+  }[];
   notes?: string;
   createdAt: string;
   updatedAt: string;

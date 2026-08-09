@@ -89,7 +89,7 @@ export function ResetPasswordContent() {
           </div>
           <div>
             <span className="text-xl font-bold text-slate-800 tracking-tight block leading-none">
-              Naxivo
+              Logiflow
             </span>
             <span className="text-[10px] font-semibold text-slate-400 tracking-wide">
               Account Recovery
@@ -119,7 +119,7 @@ export function ResetPasswordContent() {
                 Create new password
               </h1>
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Choose a strong password to secure your Naxivo account.
+                Choose a strong password to secure your Logiflow account.
               </p>
             </div>
 

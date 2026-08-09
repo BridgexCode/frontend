@@ -49,7 +49,7 @@ export function DashboardOverview() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Super Admin Dashboard</h1>
         <p className="text-sm text-slate-400 mt-0.5">
-          System-wide overview of the Naxivo platform
+          System-wide overview of the Logiflow platform
         </p>
         <p className="text-sm text-slate-600 mt-2 flex items-center gap-1.5"><Mail className="w-4 h-4 text-emerald-500" />{adminEmail || "admin@naxivo.com"}</p>
       </div>

@@ -19,7 +19,7 @@ export const Solutions: React.FC = () => {
             <span className="text-secondary">ERP Automation</span>
           </h2>
           <p className="text-on-surface-variant text-base md:text-lg max-w-2xl leading-relaxed">
-            Transform WhatsApp into your logistics ERP interface. Drivers can update shipments, report issues, and share delivery information through simple messages while AI automatically processes and syncs data in real time.
+            Transform Telegram bot messages into your logistics ERP interface. Drivers can update shipments, report issues, and share delivery information through simple messages while AI automatically processes and syncs data in real time.
           </p>
         </motion.div>
       </div>

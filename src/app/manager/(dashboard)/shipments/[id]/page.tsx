@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Package, FileText, Truck } from "lucide-react";
+import { ArrowLeft, Loader2, Package, FileText, Truck, ImageIcon } from "lucide-react";
 import { fetchShipmentByIdApi, mapStatus } from "@/features/manager/services/shipments-api";
 import { fetchDriversApi } from "@/features/manager/services/drivers-api";
 import { fetchVehiclesApi } from "@/features/manager/services/vehicles-api";
@@ -135,6 +135,38 @@ export default function ShipmentDetailPage() {
             </div>
           </div>
         </div>
+
+        {shipment.proofPhotos && shipment.proofPhotos.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-slate-100">
+            <div className="flex items-center gap-2 mb-4">
+              <ImageIcon className="w-4 h-4 text-emerald-600" />
+              <h3 className="text-sm font-bold text-slate-900">Proof Photos</h3>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {shipment.proofPhotos.map((photo: any, i: number) => (
+                <a
+                  key={photo.cloudinaryPublicId || `${photo.telegramFileId}-${i}`}
+                  href={photo.cloudinaryUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group overflow-hidden rounded-xl border border-slate-100 bg-slate-50"
+                >
+                  <img
+                    src={photo.cloudinaryUrl}
+                    alt={`Proof photo ${i + 1}`}
+                    className="h-32 w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                  />
+                  <div className="px-3 py-2">
+                    <p className="text-[10px] font-semibold text-slate-400">
+                      {photo.timestamp ? new Date(photo.timestamp).toLocaleString() : "Proof photo"}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {shipment.timeline && shipment.timeline.length > 0 && (
           <div className="mt-8 pt-6 border-t border-slate-100">

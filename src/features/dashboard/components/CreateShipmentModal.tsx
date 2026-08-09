@@ -56,7 +56,7 @@ export function CreateShipmentModal({
               <div>
                 <h3 className="text-lg font-bold text-slate-900">Create New Shipment</h3>
                 <p className="text-xs text-slate-400">
-                  Add a new operational shipment dispatch to Naxivo
+                  Add a new operational shipment dispatch to Logiflow
                 </p>
               </div>
             </div>

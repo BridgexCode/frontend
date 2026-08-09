@@ -26,7 +26,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Naxivo | ERP Automation via WhatsApp",
+  title: "Logiflow | ERP Automation via Telegram",
   description: "Drivers update shipments through WhatsApp. AI automatically updates your ERP, timelines, and operations dashboard in real time.",
   keywords: ["logistics", "ERP automation", "whatsapp", "AI shipment tracking", "fleet management"],
   authors: [{ name: "NX Group" }],
@@ -39,14 +39,14 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Naxivo | ERP Automation via WhatsApp",
+    title: "Logiflow | ERP Automation via Telegram",
     description: "Drivers update shipments through WhatsApp. AI automatically updates your ERP, timelines, and operations dashboard in real time.",
     type: "website",
-    siteName: "Naxivo",
+    siteName: "Logiflow",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Naxivo | ERP Automation via WhatsApp",
+    title: "Logiflow | ERP Automation via Telegram",
     description: "Drivers update shipments through WhatsApp. AI automatically updates your ERP, timelines, and operations dashboard in real time.",
   },
 };

@@ -18,7 +18,7 @@ function SidebarContent({ activeSection = "dashboard" }: { activeSection?: strin
           <Network className="w-5 h-5" />
         </div>
         <div>
-          <span className="text-base font-bold text-slate-800 tracking-tight block leading-none">Naxivo</span>
+          <span className="text-base font-bold text-slate-800 tracking-tight block leading-none">Logiflow</span>
           <span className="text-[9px] font-semibold text-slate-400 tracking-wide">Logistics & Shipment Management</span>
         </div>
       </div>
@@ -85,7 +85,7 @@ export function DashboardSidebar({ open, onClose, activeSection = "dashboard" }:
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-2">
                     <Network className="w-6 h-6 text-emerald-600" />
-                    <span className="text-base font-bold text-slate-800">Naxivo</span>
+                    <span className="text-base font-bold text-slate-800">Logiflow</span>
                   </div>
                   <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-700">
                     <X className="w-5 h-5" />
